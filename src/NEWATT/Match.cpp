@@ -95,6 +95,13 @@ void Match::printStates(){
     std::cout << std::endl;
 }
 
+void Match::printOutlineCoordinates(){
+    for (int i = 0; i < this->COORDINATES; i++)
+        std::cout << "(" << this->outline_coordinates[2 * i] << "," << this->outline_coordinates[2 * i + 1] << ") ";
+    
+    std::cout << std::endl;
+}
+
 void Match::generateRandomPieceSequence(){
     using Pieces::Piece;
     srand(time(NULL));
@@ -137,13 +144,11 @@ void Match::spawnNewPiece(){
     int* coordinates = this->piece.getCoordinates();
     this->piece_list_index++;
 
-    // check for spawning spot availability
-    // i hope this is how it's done
     for (int i = 0; i < this->COORDINATES; i++){
         int row = coordinates[2 * i];
         int column = coordinates[2 * i + 1];
 
-        if (this->grid[row * COLUMNS + column + 3].getState() != Cell::State::Empty){
+        if (this->grid[row * this->COLUMNS + column].getState() != Cell::State::Empty){
             std::cout << "Conflict at cell (" << row << "," << column << "): couldn't spawn piece " << (int)piece_type << std::endl;
             std::cout << "Match state is: Finished (you fucking suck)" << std::endl;
             this->state = State::Finished;
@@ -160,15 +165,54 @@ void Match::spawnNewPiece(){
         int row = coordinates[2 * i];
         int column = coordinates[2 * i + 1];
 
-        this->grid[row * COLUMNS + column].setColors(1, 1, 1);
-        this->grid[row * COLUMNS + column].setState(Cell::State::Piece);
+        this->grid[row * this->COLUMNS + column].setColors(255, 255, 255);
+        this->grid[row * this->COLUMNS + column].setState(Cell::State::Piece);
     }
 
     this->state = State::Ongoing;
+    this->calculateOutlineCoordinates();
 }
 
 void Match::checkForClearLines(){
     
+}
+
+void Match::calculateOutlineCoordinates(){
+    int* coordinates = this->piece.getCoordinates();
+    const int* downmost_coordinate_indices = this->piece.getDownmostCoordinateIndices();
+    int orientation_offset = this->piece.getOrientationIndex() * Pieces::Piece::ORIENTATIONS;
+
+    int i = 0;
+    bool found_bottom_collision{false};
+    while (!found_bottom_collision){
+        for (int j = 0; j < this->COORDINATES; j++){
+            int index = downmost_coordinate_indices[j];
+            if (index == -1) break;
+            
+            int row = coordinates[2 * index] + i;
+            int column = coordinates[2 * index + 1];
+
+            if (row == this->ROWS - 1){
+                found_bottom_collision = true;
+                break;
+            }
+
+            Cell down_cell = this->grid[row * this->COLUMNS + column];
+
+            if (down_cell.getState() == Cell::State::Full){
+                found_bottom_collision = true;
+                i--;
+                break;
+            }
+        }
+
+        if (!found_bottom_collision) i++;
+    }
+
+    for (int j = 0; j < this->COORDINATES; j++){
+        this->outline_coordinates[2 * j] = coordinates[2 * j] + i;
+        this->outline_coordinates[2 * j + 1] = coordinates[2 * j + 1];
+    }
 }
 
 void Match::moveLeft(){
@@ -202,9 +246,11 @@ void Match::moveLeft(){
     for (int i = 0; i < this->COORDINATES; i++){
         int row = coordinates[2 * i];
         int column = coordinates[2 * i + 1];
-        this->grid[row * this->COLUMNS + column].setColors(1, 1, 1);
+        this->grid[row * this->COLUMNS + column].setColors(255, 255, 255);
         this->grid[row * this->COLUMNS + column].setState(Cell::State::Piece);
     }
+
+    this->calculateOutlineCoordinates();
 }
 
 void Match::moveRight(){
@@ -238,9 +284,11 @@ void Match::moveRight(){
     for (int i = 0; i < this->COORDINATES; i++){
         int row = coordinates[2 * i];
         int column = coordinates[2 * i + 1];
-        this->grid[row * this->COLUMNS + column].setColors(1, 1, 1);
+        this->grid[row * this->COLUMNS + column].setColors(255, 255, 255);
         this->grid[row * this->COLUMNS + column].setState(Cell::State::Piece);
     }
+
+    this->calculateOutlineCoordinates();
 }
 
 void Match::lowerPiece(){
@@ -278,7 +326,7 @@ void Match::lowerPiece(){
     for (int i = 0; i < this->COORDINATES; i++){
         int row = coordinates[2 * i];
         int column = coordinates[2 * i + 1];
-        this->grid[row * this->COLUMNS + column].setColors(1, 1, 1);
+        this->grid[row * this->COLUMNS + column].setColors(255, 255, 255);
         this->grid[row * this->COLUMNS + column].setState(Cell::State::Piece);
     }
 }
@@ -294,6 +342,7 @@ void Match::lockPiece(){
 
     this->checkForClearLines();
     this->state = State::PieceLocked;
+    this->pieces_dropped++;
 }
 
 void Match::normalDrop(){

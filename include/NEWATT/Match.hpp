@@ -33,11 +33,13 @@ class Match{
         
         void printColors();
         void printStates();
+        void printOutlineCoordinates();
     
         void start();
         void generateRandomPieceSequence();
         void spawnNewPiece();
         void checkForClearLines();
+        void calculateOutlineCoordinates();
 
         void moveLeft();
         void moveRight();

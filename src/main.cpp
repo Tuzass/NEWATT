@@ -7,12 +7,15 @@ int main(void){
     match.printStates();
 
     while (match.getState() != Match::State::Finished){
+        std::cout << "\nOutline coordinates for piece " << match.getPiecesDropped() << ": " << std::endl;
+        match.printOutlineCoordinates();
+
         while (match.getState() == Match::State::Ongoing)
             match.lowerPiece();
 
         match.spawnNewPiece();
+        match.printStates();
     }
 
-    match.printStates();
     return 0;
 }
