@@ -1,0 +1,34 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "build",
+            "type": "shell",
+            "command": "g++",
+            "args": [
+                "-g",
+                "${workspaceFolder}/src/main.cpp", 
+                "${workspaceFolder}/src/NEWATT/Match.cpp",
+                "${workspaceFolder}/src/NEWATT/Piece.cpp",
+                "${workspaceFolder}/src/NEWATT/PieceCoordinates.cpp",
+                "${workspaceFolder}/src/NEWATT/Cell.cpp",
+                "${workspaceFolder}/src/glad/gl.c",
+                "-o",
+                "${workspaceFolder}/main.exe", 
+                "-I",
+                "${workspaceFolder}/include", 
+                "-L",
+                "${workspaceFolder}/lib", 
+                "-lglfw3", 
+                "-lopengl32", 
+                "-lgdi32"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": ["$gcc"],
+            "detail": "Generated task by VSCode"
+        }
+    ]
+}
