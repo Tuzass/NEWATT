@@ -14,8 +14,15 @@ class Match{
         static const int DIMENSIONS = 2;
         static const int PIECE_LIST_LENGTH = 14;
 
+        enum State{
+            NotStarted, Ongoing, Paused, PieceLocked, Finished
+        };
+
         Match();
         Match(Cell grid[ROWS * COLUMNS]);
+
+        State getState();
+        void setState(State state);
 
         Cell* getGrid();
         int getMatchTime();
@@ -27,6 +34,7 @@ class Match{
         void printColors();
         void printStates();
     
+        void start();
         void generateRandomPieceSequence();
         void spawnNewPiece();
         void checkForClearLines();
@@ -35,12 +43,14 @@ class Match{
         void moveRight();
         
         void lowerPiece();
-        void dropPiece();
+        void lockPiece();
+
         void normalDrop();
         void softDrop();
         void hardDrop();
     
     private:
+        State state;
         Cell grid[ROWS * COLUMNS];
         int match_time;
         int match_score;

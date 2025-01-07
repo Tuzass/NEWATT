@@ -1,15 +1,17 @@
 #include "../include/NEWATT/Match.hpp"
 
 Match::Match():
-    grid{}, match_time{}, match_score{}, current_speed{0.25f}, lines_cleared{},
-    pieces_dropped{}, last_drop_time{}, piece_list_index{}, piece{}
+    state{}, grid{}, match_time{}, match_score{}, current_speed{0.25f},
+    lines_cleared{}, pieces_dropped{}, last_drop_time{}, piece_list_index{}, piece{}
 {
     for (int i = 0; i < COORDINATES * DIMENSIONS; i++)
             this->outline_coordinates[i] = 0;
+    
+    std::cout << "Match state is NotStarted" << std::endl;
 }
 
 Match::Match(Cell grid[ROWS * COLUMNS]):
-    match_time{}, match_score{}, current_speed{0.25f}, lines_cleared{},
+    state{}, match_time{}, match_score{}, current_speed{0.25f}, lines_cleared{},
     pieces_dropped{}, last_drop_time{}, piece_list_index{}, piece{}
 {
     for (int i = 0; i < ROWS * COLUMNS; i++)
@@ -17,6 +19,14 @@ Match::Match(Cell grid[ROWS * COLUMNS]):
     
     for (int i = 0; i < COORDINATES * DIMENSIONS; i++)
         this->outline_coordinates[i] = 0;
+}
+
+Match::State Match::getState(){
+    return this->state;
+}
+
+void Match::setState(State state){
+    this->state = state;
 }
 
 Cell* Match::getGrid(){
@@ -41,6 +51,12 @@ int Match::getPiecesDropped(){
 
 int* Match::getOutlineCoordinates(){
     return (int*)(this->outline_coordinates);
+}
+
+void Match::start(){
+    this->generateRandomPieceSequence();
+    this->spawnNewPiece();
+    this->state = State::Ongoing;
 }
 
 void Match::printColors(){
@@ -116,7 +132,8 @@ void Match::spawnNewPiece(){
     using Pieces::Piece;
 
     Piece::Type piece_type = (Piece::Type)(this->piece_list[this->piece_list_index]);
-    this->piece = Piece {piece_type};
+    Piece new_piece = Piece {piece_type};
+    this->piece = new_piece;
     int* coordinates = this->piece.getCoordinates();
     this->piece_list_index++;
 
@@ -127,8 +144,10 @@ void Match::spawnNewPiece(){
         int column = coordinates[2 * i + 1];
 
         if (this->grid[row * COLUMNS + column + 3].getState() != Cell::State::Empty){
-            // spawning spot occupied
-            // TODO: end the match
+            std::cout << "Conflict at cell (" << row << "," << column << "): couldn't spawn piece " << (int)piece_type << std::endl;
+            std::cout << "Match state is: Finished (you fucking suck)" << std::endl;
+            this->state = State::Finished;
+            return;
         }
     }
     
@@ -144,6 +163,8 @@ void Match::spawnNewPiece(){
         this->grid[row * COLUMNS + column].setColors(1, 1, 1);
         this->grid[row * COLUMNS + column].setState(Cell::State::Piece);
     }
+
+    this->state = State::Ongoing;
 }
 
 void Match::checkForClearLines(){
@@ -235,13 +256,13 @@ void Match::lowerPiece(){
         int row = coordinates[2 * index];
         int column = coordinates[2 * index + 1];
         if (row == this->ROWS - 1){
-            this->dropPiece();
+            this->lockPiece();
             return;
         }
         
         Cell down_cell = this->grid[(row + 1) * COLUMNS + column];
         if (down_cell.getState() == Cell::State::Full){
-            this->dropPiece();
+            this->lockPiece();
             return;
         }
     }
@@ -262,8 +283,17 @@ void Match::lowerPiece(){
     }
 }
 
-void Match::dropPiece(){
+void Match::lockPiece(){
+    int* coordinates = this->piece.getCoordinates();
 
+    for (int i = 0; i < this->COORDINATES; i++){
+        int row = coordinates[2 * i];
+        int column = coordinates[2 * i + 1];
+        this->grid[row * this->COLUMNS + column].setState(Cell::State::Full);
+    }
+
+    this->checkForClearLines();
+    this->state = State::PieceLocked;
 }
 
 void Match::normalDrop(){

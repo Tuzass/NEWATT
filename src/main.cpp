@@ -3,8 +3,16 @@
 int main(void){
     Match match{};
 
-    match.generateRandomPieceSequence();
-    match.spawnNewPiece();
+    match.start();
+    match.printStates();
+
+    while (match.getState() != Match::State::Finished){
+        while (match.getState() == Match::State::Ongoing)
+            match.lowerPiece();
+
+        match.spawnNewPiece();
+    }
+
     match.printStates();
     return 0;
 }
