@@ -291,7 +291,8 @@ void Match::rotateCW(){
     int bounding_box_row_offset = coordinate_row - orientation_coordinate_row;
     int bounding_box_column_offset = coordinate_column - orientation_coordinate_column;
     
-    int new_orientation_index = (old_orientation_index + 1) % Piece::ORIENTATIONS;
+    int new_orientation_index = old_orientation_index + 1;
+    if (new_orientation_index >= Piece::ORIENTATIONS) new_orientation_index -= Piece::ORIENTATIONS;
 
     const int* wall_kick_offsets = this->piece.getWallKickOffsets();
     for (int i = 0; i < Piece::OFFSETS; i++){
@@ -339,6 +340,7 @@ void Match::rotateCW(){
         }
 
         this->piece.increaseOrientationIndex();
+        this->calculateGhostCoordinates();
         break;
     }
 }
@@ -361,12 +363,13 @@ void Match::rotateCounterCW(){
     int bounding_box_row_offset = coordinate_row - orientation_coordinate_row;
     int bounding_box_column_offset = coordinate_column - orientation_coordinate_column;
 
-    int new_orientation_index = (old_orientation_index - 1) % Piece::ORIENTATIONS;
+    int new_orientation_index = old_orientation_index - 1;
+    if (new_orientation_index < 0) new_orientation_index += Piece::ORIENTATIONS;
 
     const int* wall_kick_offsets = this->piece.getWallKickOffsets();
     for (int i = 0; i < Piece::OFFSETS; i++){
-        int wall_kick_row_offset = - wall_kick_offsets[old_orientation_index * Piece::OFFSETS * this->DIMENSIONS + i * this->DIMENSIONS];
-        int wall_kick_column_offset = - wall_kick_offsets[old_orientation_index * Piece::OFFSETS * this->DIMENSIONS + i * this->DIMENSIONS + 1];
+        int wall_kick_row_offset = wall_kick_offsets[new_orientation_index * Piece::OFFSETS * this->DIMENSIONS + i * this->DIMENSIONS];
+        int wall_kick_column_offset = wall_kick_offsets[new_orientation_index * Piece::OFFSETS * this->DIMENSIONS + i * this->DIMENSIONS + 1];
 
         bool test_result{true};
         for (int j = 0; j < this->COORDINATES; j++){
@@ -391,6 +394,7 @@ void Match::rotateCounterCW(){
         for (int j = 0; j < this->COORDINATES; j++){
             int current_row = coordinates[2 * j];
             int current_column = coordinates[2 * j + 1];
+
             this->grid[current_row * this->COLUMNS + current_column].setState(Cell::State::Empty);
             this->grid[current_row * this->COLUMNS + current_column].setColors(0, 0, 0);
         }
@@ -407,6 +411,7 @@ void Match::rotateCounterCW(){
         }
 
         this->piece.decreaseOrientationIndex();
+        this->calculateGhostCoordinates();
         break;
     }
 }
@@ -455,21 +460,18 @@ void Match::lockPiece(){
     int* coordinates = this->piece.getCoordinates();
     int lowest_row = -1;
 
-    std::cout << "Ghost coordinates: " << std::endl;
     for (int i = 0; i < this->COORDINATES; i++){
         int row = coordinates[2 * i];
         int column = coordinates[2 * i + 1];
+        std::cout << "locking new coordinate (" << row << "," << column << ")" << std::endl;
         this->grid[row * this->COLUMNS + column].setState(Cell::State::Full);
-        std::cout << "(" << row << "," << column << ") ";
 
         if (row > lowest_row) lowest_row = row;
     }
-    std::cout << "\nlowest_row = " << lowest_row << std::endl;
 
     this->pieces_dropped++;
 
     if (lowest_row < 2){
-        std::cout << "piece locked above grid" << std::endl;
         this->state = State::Finished;
         return;
     }
@@ -493,12 +495,14 @@ void Match::hardDrop(){
     for (int i = 0; i < this->COORDINATES; i++){
         int row = coordinates[2 * i];
         int column = coordinates[2 * i + 1];
+        std::cout << "emptying cell (" << row << "," << column << ")" << std::endl;
         this->grid[row * this->COLUMNS + column].setState(Cell::State::Empty);
     }
 
     for (int i = 0; i < this->COORDINATES; i++){
         int row = this->ghost_coordinates[2 * i];
         int column = this->ghost_coordinates[2 * i + 1];
+        std::cout << "setting new coordinate (" << row << "," << column << ")" << std::endl;
         coordinates[2 * i] = row;
         coordinates[2 * i + 1] = column;
         this->grid[row * this->COLUMNS + column].setColors(255, 255, 255);

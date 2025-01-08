@@ -254,27 +254,27 @@ int Pieces::TLJSZ_WALL_KICK_OFFSETS[Piece::ORIENTATIONS * Piece::DIMENSIONS * Pi
      0,  0,
      0, -1,
     -1, -1,
-     2,  0, 
+     2,  0,
      2, -1,
 
     // rotating orientation 1->2
      0,  0,
      0,  1,
      1,  1,
-    -2,  0, 
+    -2,  0,
     -2,  1,
 
     // rotating orientation 2->3
      0,  0,
      0,  1,
     -1,  1,
-     2,  0, 
+     2,  0,
      2,  1,
 
     // rotating orientation 3->0
      0,  0,
      0, -1,
      1, -1,
-    -2,  0, 
+    -2,  0,
     -2, -1
 };

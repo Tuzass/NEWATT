@@ -4,9 +4,7 @@
 
 int main(void){
     Match match{};
-
     match.start();
-    match.printStates();
 
     std::string input = "";
     while (true){
@@ -40,11 +38,11 @@ int main(void){
         else if (input == "lp")
             match.lowerPiece();
 
-        std::cout << "current state = " << match.getState() << std::endl;
+        match.printGhostCoordinates();
         match.printStates();
 
         std::cout << "l = move left\nr = move right\ncw = rotate clockwise\nccw = rotate counterclockwise\nh = hard drop\nlp = lower piece" << std::endl;
-        std::cout << "enter \"exit\" to end the game" << std::endl;
+        std::cout << "enter \"exit\" to end the game\n" << std::endl;
 
         if (match.getState() == Match::State::PieceLocked){
             match.spawnNewPiece();
