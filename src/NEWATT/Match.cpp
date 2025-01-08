@@ -5,7 +5,7 @@ Match::Match():
     lines_cleared{}, pieces_dropped{}, last_drop_time{}, piece_list_index{}, piece{}
 {
     for (int i = 0; i < COORDINATES * DIMENSIONS; i++)
-            this->outline_coordinates[i] = 0;
+            this->ghost_coordinates[i] = 0;
 }
 
 Match::Match(Cell grid[ROWS * COLUMNS]):
@@ -16,7 +16,7 @@ Match::Match(Cell grid[ROWS * COLUMNS]):
         this->grid[i] = grid[i];
     
     for (int i = 0; i < COORDINATES * DIMENSIONS; i++)
-        this->outline_coordinates[i] = 0;
+        this->ghost_coordinates[i] = 0;
 }
 
 Match::State Match::getState(){
@@ -47,8 +47,8 @@ int Match::getPiecesDropped(){
     return this->pieces_dropped;
 }
 
-int* Match::getOutlineCoordinates(){
-    return (int*)(this->outline_coordinates);
+int* Match::getGhostCoordinates(){
+    return (int*)(this->ghost_coordinates);
 }
 
 void Match::start(){
@@ -93,9 +93,9 @@ void Match::printStates(){
     std::cout << std::endl;
 }
 
-void Match::printOutlineCoordinates(){
+void Match::printGhostCoordinates(){
     for (int i = 0; i < this->COORDINATES; i++)
-        std::cout << "(" << this->outline_coordinates[2 * i] << "," << this->outline_coordinates[2 * i + 1] << ") ";
+        std::cout << "(" << this->ghost_coordinates[2 * i] << "," << this->ghost_coordinates[2 * i + 1] << ") ";
     
     std::cout << std::endl;
 }
@@ -152,14 +152,14 @@ void Match::spawnNewPiece(){
     }
 
     this->state = State::Ongoing;
-    this->calculateOutlineCoordinates();
+    this->calculateGhostCoordinates();
 }
 
-void Match::checkForClearLines(){
+void Match::clearLines(){
     
 }
 
-void Match::calculateOutlineCoordinates(){
+void Match::calculateGhostCoordinates(){
     int* coordinates = this->piece.getCoordinates();
     const int* downmost_coordinate_indices = this->piece.getDownmostCoordinateIndices();
     int orientation_offset = this->piece.getOrientationIndex() * Pieces::Piece::ORIENTATIONS;
@@ -192,8 +192,8 @@ void Match::calculateOutlineCoordinates(){
     }
 
     for (int j = 0; j < this->COORDINATES; j++){
-        this->outline_coordinates[2 * j] = coordinates[2 * j] + i;
-        this->outline_coordinates[2 * j + 1] = coordinates[2 * j + 1];
+        this->ghost_coordinates[2 * j] = coordinates[2 * j] + i;
+        this->ghost_coordinates[2 * j + 1] = coordinates[2 * j + 1];
     }
 }
 
@@ -232,7 +232,7 @@ void Match::moveLeft(){
         this->grid[row * this->COLUMNS + column].setState(Cell::State::Piece);
     }
 
-    this->calculateOutlineCoordinates();
+    this->calculateGhostCoordinates();
 }
 
 void Match::moveRight(){
@@ -270,7 +270,7 @@ void Match::moveRight(){
         this->grid[row * this->COLUMNS + column].setState(Cell::State::Piece);
     }
 
-    this->calculateOutlineCoordinates();
+    this->calculateGhostCoordinates();
 }
 
 void Match::rotateCW(){
@@ -455,33 +455,54 @@ void Match::lockPiece(){
     int* coordinates = this->piece.getCoordinates();
     int lowest_row = -1;
 
+    std::cout << "Ghost coordinates: " << std::endl;
     for (int i = 0; i < this->COORDINATES; i++){
         int row = coordinates[2 * i];
         int column = coordinates[2 * i + 1];
         this->grid[row * this->COLUMNS + column].setState(Cell::State::Full);
+        std::cout << "(" << row << "," << column << ") ";
 
-        if (row < lowest_row) lowest_row = row;
+        if (row > lowest_row) lowest_row = row;
     }
+    std::cout << "\nlowest_row = " << lowest_row << std::endl;
 
     this->pieces_dropped++;
 
     if (lowest_row < 2){
+        std::cout << "piece locked above grid" << std::endl;
         this->state = State::Finished;
         return;
     }
 
-    this->checkForClearLines();
+    this->clearLines();
     this->state = State::PieceLocked;
 }
 
 void Match::normalDrop(){
-
+    // maybe toggle a boolean depending on how input works
+    this->current_speed /= soft_drop_multiplier;
 }
 
 void Match::softDrop(){
-
+    // maybe toggle a boolean depending on how input works
+    this->current_speed *= soft_drop_multiplier;
 }
 
 void Match::hardDrop(){
+    int* coordinates = this->piece.getCoordinates();
+    for (int i = 0; i < this->COORDINATES; i++){
+        int row = coordinates[2 * i];
+        int column = coordinates[2 * i + 1];
+        this->grid[row * this->COLUMNS + column].setState(Cell::State::Empty);
+    }
 
+    for (int i = 0; i < this->COORDINATES; i++){
+        int row = this->ghost_coordinates[2 * i];
+        int column = this->ghost_coordinates[2 * i + 1];
+        coordinates[2 * i] = row;
+        coordinates[2 * i + 1] = column;
+        this->grid[row * this->COLUMNS + column].setColors(255, 255, 255);
+    }
+
+    this->lockPiece();
 }

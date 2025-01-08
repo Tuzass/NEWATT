@@ -29,17 +29,17 @@ class Match{
         int getMatchScore();
         int getLinesCleared();
         int getPiecesDropped();
-        int* getOutlineCoordinates();
+        int* getGhostCoordinates();
         
         void printColors();
         void printStates();
-        void printOutlineCoordinates();
+        void printGhostCoordinates();
     
         void start();
         void generateRandomPieceSequence();
         void spawnNewPiece();
-        void checkForClearLines();
-        void calculateOutlineCoordinates();
+        void clearLines();
+        void calculateGhostCoordinates();
 
         void moveLeft();
         void moveRight();
@@ -60,9 +60,10 @@ class Match{
         int match_time;
         int match_score;
         float current_speed;
+        float soft_drop_multiplier;
         int lines_cleared;
         int pieces_dropped;
-        int outline_coordinates[COORDINATES * DIMENSIONS];
+        int ghost_coordinates[COORDINATES * DIMENSIONS];
 
         int last_drop_time;
         int piece_list_index;
