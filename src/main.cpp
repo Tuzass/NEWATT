@@ -38,16 +38,16 @@ int main(void){
         else if (input == "lp")
             match.lowerPiece();
 
-        match.printStates();
-
-        std::cout << "l = move left\nr = move right\ncw = rotate clockwise\nccw = rotate counterclockwise\nh = hard drop\nlp = lower piece" << std::endl;
-        std::cout << "enter \"exit\" to end the game\n" << std::endl;
-
         if (match.getState() == Match::State::PieceLocked){
             match.spawnNewPiece();
             input = "";
             continue;
         }
+
+        match.printStates();
+
+        std::cout << "l = move left\nr = move right\ncw = rotate clockwise\nccw = rotate counterclockwise\nh = hard drop\nlp = lower piece" << std::endl;
+        std::cout << "enter \"exit\" to end the game\n" << std::endl;
 
         std::cin >> input;
     }

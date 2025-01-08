@@ -1,8 +1,8 @@
 #include "../include/NEWATT/Match.hpp"
 
 Match::Match():
-    state{}, grid{}, match_time{}, match_score{}, current_speed{0.25f},
-    lines_cleared{}, pieces_dropped{}, last_drop_time{}, piece_list_index{}, piece{}
+    state{}, grid{}, match_time{}, match_score{}, current_speed{0.25f}, lines_cleared{},
+    pieces_dropped{}, highest_non_empty_row{ROWS}, last_drop_time{}, piece_list_index{}, piece{}
 {
     for (int i = 0; i < COORDINATES * DIMENSIONS; i++)
             this->ghost_coordinates[i] = 0;
@@ -10,7 +10,7 @@ Match::Match():
 
 Match::Match(Cell grid[ROWS * COLUMNS]):
     state{}, match_time{}, match_score{}, current_speed{0.25f}, lines_cleared{},
-    pieces_dropped{}, last_drop_time{}, piece_list_index{}, piece{}
+    pieces_dropped{}, highest_non_empty_row{}, last_drop_time{}, piece_list_index{}, piece{}
 {
     for (int i = 0; i < ROWS * COLUMNS; i++)
         this->grid[i] = grid[i];
@@ -155,8 +155,38 @@ void Match::spawnNewPiece(){
     this->calculateGhostCoordinates();
 }
 
-void Match::clearLines(){
-    
+void Match::checkForClearRows(int rows[COORDINATES]){
+    for (int i = 0; i < this->COORDINATES; i++){
+        int row = rows[i];
+        if (row == -1) break;
+
+        bool should_clear_row{true};
+        for (int j = 0; j < this->COLUMNS; j++){
+            Cell cell = this->grid[row * this->COLUMNS + j];
+
+            if (cell.getState() == Cell::State::Empty){
+                should_clear_row = false;
+                break;
+            }
+        }
+
+        if (!should_clear_row) continue;
+        
+        for (int j = row - 1; j >= this->highest_non_empty_row; j--){
+            for (int k = 0; k < this->COLUMNS; k++){
+                Cell::State state = this->grid[j * this->COLUMNS + k].getState();
+                uint8_t* colors = this->grid[j * this->COLUMNS + k].getColors();
+
+                this->grid[j * this->COLUMNS + k].setState(Cell::State::Empty);
+                this->grid[j * this->COLUMNS + k].setColors(0, 0, 0);
+
+                this->grid[(j + 1) * this->COLUMNS + k].setState(state);
+                this->grid[(j + 1) * this->COLUMNS + k].setColors(colors[0], colors[1], colors[2]);
+            }
+        }
+
+        this->highest_non_empty_row--;
+    }
 }
 
 void Match::calculateGhostCoordinates(){
@@ -195,7 +225,6 @@ void Match::calculateGhostCoordinates(){
     for (int j = 0; j < this->COORDINATES; j++){
         this->ghost_coordinates[2 * j] = coordinates[2 * j] + i;
         this->ghost_coordinates[2 * j + 1] = coordinates[2 * j + 1];
-        std::cout << "(" << this->ghost_coordinates[2 * j] << "," << this->ghost_coordinates[2 * j + 1] << ")" << std::endl;
     }
 }
 
@@ -286,28 +315,20 @@ void Match::rotateCW(){
     int orientation_coordinate_row = orientation_coordinate / this->COORDINATES;
     int orientation_coordinate_column = orientation_coordinate % this->COORDINATES;
 
-    std::cout << "\nold orientation index = " << old_orientation_index << std::endl;
-
     int* coordinates = this->piece.getCoordinates();
     int coordinate_row = coordinates[0];
     int coordinate_column = coordinates[1];
 
     int bounding_box_row_offset = coordinate_row - orientation_coordinate_row;
     int bounding_box_column_offset = coordinate_column - orientation_coordinate_column;
-
-    std::cout << "\nbounding box offset = (" << bounding_box_row_offset << "," << bounding_box_column_offset << ")" << std::endl;
     
     int new_orientation_index = old_orientation_index + 1;
     if (new_orientation_index >= Piece::ORIENTATIONS) new_orientation_index -= Piece::ORIENTATIONS;
 
-    std::cout << "\nnew orientation index = " << new_orientation_index << std::endl;
-
     const int* wall_kick_offsets = this->piece.getWallKickOffsets();
     for (int i = 0; i < Piece::OFFSETS; i++){
-        std::cout << "\nstarting test " << i << std::endl;
         int wall_kick_row_offset = wall_kick_offsets[old_orientation_index * Piece::OFFSETS * this->DIMENSIONS + i * this->DIMENSIONS];
         int wall_kick_column_offset = wall_kick_offsets[old_orientation_index * Piece::OFFSETS * this->DIMENSIONS + i * this->DIMENSIONS + 1];
-        std::cout << "\nwall kick offset = (" << wall_kick_row_offset << "," << wall_kick_column_offset << ")" << std::endl;
 
         bool test_result{true};
         for (int j = 0; j < this->COORDINATES; j++){
@@ -315,33 +336,23 @@ void Match::rotateCW(){
             int row = coordinate / this->COORDINATES + bounding_box_row_offset + wall_kick_row_offset;
             int column = coordinate % this->COORDINATES + bounding_box_column_offset + wall_kick_column_offset;
 
-            std::cout << "\ncoordinate (" << row << "," << column << ")" << std::endl;
-
             if (row < 0 || row >= this->ROWS || column < 0 || column >= this->COLUMNS){
                 test_result = false;
-                std::cout << "cell outside grid" << std::endl;
                 break;
             }
 
             Cell offset_cell = this->grid[row * this->COLUMNS + column];
             if (offset_cell.getState() == Cell::State::Full){
                 test_result = false;
-                std::cout << "cell already full" << std::endl;
                 break;
             }
-
-            std::cout << "we good" << std::endl;
         }
 
         if (!test_result) continue;
 
-        std::cout << "\ntest " << i << " successful, performing rotation" << std::endl;
-
         for (int j = 0; j < this->COORDINATES; j++){
             int current_row = coordinates[2 * j];
             int current_column = coordinates[2 * j + 1];
-
-            std::cout << "\nemptying (" << current_row << "," << current_column << ")" << std::endl;
 
             this->grid[current_row * this->COLUMNS + current_column].setState(Cell::State::Empty);
             this->grid[current_row * this->COLUMNS + current_column].setColors(0, 0, 0);
@@ -352,8 +363,6 @@ void Match::rotateCW(){
             int new_row = new_coordinate / this->COORDINATES + bounding_box_row_offset + wall_kick_row_offset;
             int new_column = new_coordinate % this->COORDINATES + bounding_box_column_offset + wall_kick_column_offset;
 
-            std::cout << "\nfilling (" << new_row << "," << new_column << ")" << std::endl;
-
             coordinates[2 * j] = new_row;
             coordinates[2 * j + 1] = new_column;
             this->grid[new_row * this->COLUMNS + new_column].setState(Cell::State::Piece);
@@ -362,9 +371,6 @@ void Match::rotateCW(){
 
         this->piece.increaseOrientationIndex();
         this->calculateGhostCoordinates();
-
-        std::cout << "new ghost coordinates: ";
-        this->printGhostCoordinates();
         break;
     }
 }
@@ -482,25 +488,39 @@ void Match::lowerPiece(){
 
 void Match::lockPiece(){
     int* coordinates = this->piece.getCoordinates();
-    int lowest_row = -1;
+    int highest_row = -1;
+    int rows_changed[this->COORDINATES]{-1, -1, -1, -1};
+    int rows_changed_index = 0;
 
     for (int i = 0; i < this->COORDINATES; i++){
         int row = coordinates[2 * i];
         int column = coordinates[2 * i + 1];
-        std::cout << "locking new coordinate (" << row << "," << column << ")" << std::endl;
         this->grid[row * this->COLUMNS + column].setState(Cell::State::Full);
+        
+        bool should_write_row{true};
+        for (int j = 0; j < rows_changed_index; j++){
+            if (rows_changed[j] == -1 || rows_changed[j] == row){
+                should_write_row = false;
+            }
+        }
 
-        if (row > lowest_row) lowest_row = row;
+        if (!should_write_row) continue;
+
+        rows_changed[rows_changed_index] = row;
+        rows_changed_index++;
+
+        if (row > highest_row) highest_row = row;
+        if (row < this->highest_non_empty_row) this->highest_non_empty_row = row;
     }
 
     this->pieces_dropped++;
 
-    if (lowest_row < 2){
+    if (highest_row < this->ROWS - 20){
         this->state = State::Finished;
         return;
     }
 
-    this->clearLines();
+    this->checkForClearRows(rows_changed);
     this->state = State::PieceLocked;
 }
 
@@ -519,14 +539,12 @@ void Match::hardDrop(){
     for (int i = 0; i < this->COORDINATES; i++){
         int row = coordinates[2 * i];
         int column = coordinates[2 * i + 1];
-        std::cout << "emptying cell (" << row << "," << column << ")" << std::endl;
         this->grid[row * this->COLUMNS + column].setState(Cell::State::Empty);
     }
 
     for (int i = 0; i < this->COORDINATES; i++){
         int row = this->ghost_coordinates[2 * i];
         int column = this->ghost_coordinates[2 * i + 1];
-        std::cout << "setting new coordinate (" << row << "," << column << ")" << std::endl;
         coordinates[2 * i] = row;
         coordinates[2 * i + 1] = column;
         this->grid[row * this->COLUMNS + column].setColors(255, 255, 255);

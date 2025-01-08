@@ -38,7 +38,7 @@ class Match{
         void start();
         void generateRandomPieceSequence();
         void spawnNewPiece();
-        void clearLines();
+        void checkForClearRows(int rows[COORDINATES]);
         void calculateGhostCoordinates();
 
         void moveLeft();
@@ -65,6 +65,7 @@ class Match{
         int pieces_dropped;
         int ghost_coordinates[COORDINATES * DIMENSIONS];
 
+        int highest_non_empty_row;
         int last_drop_time;
         int piece_list_index;
         int piece_list[PIECES];
