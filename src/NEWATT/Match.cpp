@@ -6,8 +6,6 @@ Match::Match():
 {
     for (int i = 0; i < COORDINATES * DIMENSIONS; i++)
             this->outline_coordinates[i] = 0;
-    
-    std::cout << "Match state is NotStarted" << std::endl;
 }
 
 Match::Match(Cell grid[ROWS * COLUMNS]):
@@ -106,32 +104,18 @@ void Match::generateRandomPieceSequence(){
     using Pieces::Piece;
     srand(time(NULL));
 
-    int j;
-    int tmp;
-    int half_length = 0.5 * PIECE_LIST_LENGTH;
-    int sequence1[half_length] {0, 1, 2, 3, 4, 5, 6};
-    int sequence2[half_length] {0, 1, 2, 3, 4, 5, 6};
+    int j, tmp;
+    int sequence[this->PIECES] {0, 1, 2, 3, 4, 5, 6};
 
-    for (int i = half_length - 1; i > 0; i--){
+    for (int i = this->PIECES - 1; i > 0; i--){
         j = rand() % (i + 1);
-        tmp = sequence1[j];
-        sequence1[j] = sequence1[i];
-        sequence1[i] = tmp;
+        tmp = sequence[j];
+        sequence[j] = sequence[i];
+        sequence[i] = tmp;
     }
 
-    for (int i = 0; i < half_length; i++){
-        this->piece_list[i] = sequence1[i];
-    }
-
-    for (int i = half_length - 1; i > 0; i--){
-        j = rand() % (i + 1);
-        tmp = sequence2[j];
-        sequence2[j] = sequence2[i];
-        sequence2[i] = tmp;
-    }
-
-    for (int i = half_length; i < PIECE_LIST_LENGTH; i++){
-        this->piece_list[i] = sequence2[i % half_length];
+    for (int i = 0; i < this->PIECES; i++){
+        this->piece_list[i] = sequence[i];
     }
 }
 
@@ -149,14 +133,12 @@ void Match::spawnNewPiece(){
         int column = coordinates[2 * i + 1];
 
         if (this->grid[row * this->COLUMNS + column].getState() != Cell::State::Empty){
-            std::cout << "Conflict at cell (" << row << "," << column << "): couldn't spawn piece " << (int)piece_type << std::endl;
-            std::cout << "Match state is: Finished (you fucking suck)" << std::endl;
             this->state = State::Finished;
             return;
         }
     }
     
-    if (this->piece_list_index == 14){
+    if (this->piece_list_index == this->PIECES){
         this->generateRandomPieceSequence();
         this->piece_list_index = 0;
     }
@@ -291,6 +273,144 @@ void Match::moveRight(){
     this->calculateOutlineCoordinates();
 }
 
+void Match::rotateCW(){
+    using Pieces::Piece;
+
+    if (this->piece.getType() == Piece::Type::O) return;
+
+    const int* orientation_coordinates = this->piece.getOrientationCoordinates();
+    int old_orientation_index = this->piece.getOrientationIndex();
+    int orientation_coordinate = orientation_coordinates[old_orientation_index * this->COORDINATES];
+    int orientation_coordinate_row = orientation_coordinate / this->COORDINATES;
+    int orientation_coordinate_column = orientation_coordinate % this->COORDINATES;
+
+    int* coordinates = this->piece.getCoordinates();
+    int coordinate_row = coordinates[0];
+    int coordinate_column = coordinates[1];
+
+    int bounding_box_row_offset = coordinate_row - orientation_coordinate_row;
+    int bounding_box_column_offset = coordinate_column - orientation_coordinate_column;
+    
+    int new_orientation_index = (old_orientation_index + 1) % Piece::ORIENTATIONS;
+
+    const int* wall_kick_offsets = this->piece.getWallKickOffsets();
+    for (int i = 0; i < Piece::OFFSETS; i++){
+
+        int wall_kick_row_offset = wall_kick_offsets[old_orientation_index * Piece::OFFSETS * this->DIMENSIONS + i * this->DIMENSIONS];
+        int wall_kick_column_offset = wall_kick_offsets[old_orientation_index * Piece::OFFSETS * this->DIMENSIONS + i * this->DIMENSIONS + 1];
+
+        bool test_result{true};
+        for (int j = 0; j < this->COORDINATES; j++){
+
+            int coordinate = orientation_coordinates[new_orientation_index * this->COORDINATES + j];
+            int row = coordinate / this->COORDINATES + bounding_box_row_offset + wall_kick_row_offset;
+            int column = coordinate % this->COORDINATES + bounding_box_column_offset + wall_kick_column_offset;
+
+            if (row < 0 || row >= this->ROWS || column < 0 || column >= this->COLUMNS){
+                test_result = false;
+                break;
+            }
+
+            Cell offset_cell = this->grid[row * this->COLUMNS + column];
+            if (offset_cell.getState() == Cell::State::Full){
+                test_result = false;
+                break;
+            }
+        }
+
+        if (!test_result) continue;
+
+        for (int j = 0; j < this->COORDINATES; j++){
+            int current_row = coordinates[2 * j];
+            int current_column = coordinates[2 * j + 1];
+            this->grid[current_row * this->COLUMNS + current_column].setState(Cell::State::Empty);
+            this->grid[current_row * this->COLUMNS + current_column].setColors(0, 0, 0);
+        }
+
+        for (int j = 0; j < this->COORDINATES; j++){
+            int new_coordinate = orientation_coordinates[new_orientation_index * this->COORDINATES + j];
+            int new_row = new_coordinate / this->COORDINATES + bounding_box_row_offset + wall_kick_row_offset;
+            int new_column = new_coordinate % this->COORDINATES + bounding_box_column_offset + wall_kick_column_offset;
+
+            coordinates[2 * j] = new_row;
+            coordinates[2 * j + 1] = new_column;
+            this->grid[new_row * this->COLUMNS + new_column].setState(Cell::State::Piece);
+            this->grid[new_row * this->COLUMNS + new_column].setColors(255, 255, 255);
+        }
+
+        this->piece.increaseOrientationIndex();
+        break;
+    }
+}
+
+void Match::rotateCounterCW(){
+    using Pieces::Piece;
+
+    if (this->piece.getType() == Piece::Type::O) return;
+
+    const int* orientation_coordinates = this->piece.getOrientationCoordinates();
+    int old_orientation_index = this->piece.getOrientationIndex();
+    int orientation_coordinate = orientation_coordinates[old_orientation_index * this->COORDINATES];
+    int orientation_coordinate_row = orientation_coordinate / this->COORDINATES;
+    int orientation_coordinate_column = orientation_coordinate % this->COORDINATES;
+
+    int* coordinates = this->piece.getCoordinates();
+    int coordinate_row = coordinates[0];
+    int coordinate_column = coordinates[1];
+
+    int bounding_box_row_offset = coordinate_row - orientation_coordinate_row;
+    int bounding_box_column_offset = coordinate_column - orientation_coordinate_column;
+
+    int new_orientation_index = (old_orientation_index - 1) % Piece::ORIENTATIONS;
+
+    const int* wall_kick_offsets = this->piece.getWallKickOffsets();
+    for (int i = 0; i < Piece::OFFSETS; i++){
+        int wall_kick_row_offset = - wall_kick_offsets[old_orientation_index * Piece::OFFSETS * this->DIMENSIONS + i * this->DIMENSIONS];
+        int wall_kick_column_offset = - wall_kick_offsets[old_orientation_index * Piece::OFFSETS * this->DIMENSIONS + i * this->DIMENSIONS + 1];
+
+        bool test_result{true};
+        for (int j = 0; j < this->COORDINATES; j++){
+            int coordinate = orientation_coordinates[new_orientation_index * this->COORDINATES + j];
+            int row = coordinate / this->COORDINATES + bounding_box_row_offset + wall_kick_row_offset;
+            int column = coordinate % this->COORDINATES + bounding_box_column_offset + wall_kick_column_offset;
+
+            if (row < 0 || row >= this->ROWS || column < 0 || column >= this->COLUMNS){
+                test_result = false;
+                break;
+            }
+
+            Cell offset_cell = this->grid[row * this->COLUMNS + column];
+            if (offset_cell.getState() == Cell::State::Full){
+                test_result = false;
+                break;
+            }
+        }
+
+        if (!test_result) continue;
+
+        for (int j = 0; j < this->COORDINATES; j++){
+            int current_row = coordinates[2 * j];
+            int current_column = coordinates[2 * j + 1];
+            this->grid[current_row * this->COLUMNS + current_column].setState(Cell::State::Empty);
+            this->grid[current_row * this->COLUMNS + current_column].setColors(0, 0, 0);
+        }
+
+        for (int j = 0; j < this->COORDINATES; j++){
+            int new_coordinate = orientation_coordinates[new_orientation_index * this->COORDINATES + j];
+            int new_row = new_coordinate / this->COORDINATES + bounding_box_row_offset + wall_kick_row_offset;
+            int new_column = new_coordinate % this->COORDINATES + bounding_box_column_offset + wall_kick_column_offset;
+
+            coordinates[2 * j] = new_row;
+            coordinates[2 * j + 1] = new_column;
+            this->grid[new_row * this->COLUMNS + new_column].setState(Cell::State::Piece);
+            this->grid[new_row * this->COLUMNS + new_column].setColors(255, 255, 255);
+        }
+
+        this->piece.decreaseOrientationIndex();
+        break;
+    }
+}
+
 void Match::lowerPiece(){
     int* coordinates = this->piece.getCoordinates();
     const int* downmost_coordinate_indices = this->piece.getDownmostCoordinateIndices();
@@ -333,16 +453,25 @@ void Match::lowerPiece(){
 
 void Match::lockPiece(){
     int* coordinates = this->piece.getCoordinates();
+    int lowest_row = -1;
 
     for (int i = 0; i < this->COORDINATES; i++){
         int row = coordinates[2 * i];
         int column = coordinates[2 * i + 1];
         this->grid[row * this->COLUMNS + column].setState(Cell::State::Full);
+
+        if (row < lowest_row) lowest_row = row;
+    }
+
+    this->pieces_dropped++;
+
+    if (lowest_row < 2){
+        this->state = State::Finished;
+        return;
     }
 
     this->checkForClearLines();
     this->state = State::PieceLocked;
-    this->pieces_dropped++;
 }
 
 void Match::normalDrop(){

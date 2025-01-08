@@ -8,11 +8,11 @@
 
 class Match{
     public:
-        static const int ROWS = 20;
+        static const int ROWS = 22;
         static const int COLUMNS = 10;
         static const int COORDINATES = 4;
         static const int DIMENSIONS = 2;
-        static const int PIECE_LIST_LENGTH = 14;
+        static const int PIECES = 7;
 
         enum State{
             NotStarted, Ongoing, Paused, PieceLocked, Finished
@@ -43,6 +43,9 @@ class Match{
 
         void moveLeft();
         void moveRight();
+
+        void rotateCW();
+        void rotateCounterCW();
         
         void lowerPiece();
         void lockPiece();
@@ -63,7 +66,7 @@ class Match{
 
         int last_drop_time;
         int piece_list_index;
-        int piece_list[PIECE_LIST_LENGTH];
+        int piece_list[PIECES];
         Pieces::Piece piece;
 };
 

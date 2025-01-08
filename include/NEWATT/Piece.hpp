@@ -14,17 +14,22 @@ namespace Pieces{
             static const int ORIENTATIONS = 4;
             static const int COORDINATES = 4;
             static const int DIMENSIONS = 2;
+            static const int OFFSETS = 5;
 
             Piece();
             Piece(Type type);
 
+            Type getType();
             int getOrientationIndex();
+            void increaseOrientationIndex();
+            void decreaseOrientationIndex();
             int* getCoordinates();
             void printCoordinates();
             const int* getLeftmostCoordinateIndices();
             const int* getRightmostCoordinateIndices();
             const int* getDownmostCoordinateIndices();
             const int* getOrientationCoordinates();
+            const int* getWallKickOffsets();
             void printOrientationCoordinates();
 
         private:
@@ -35,6 +40,7 @@ namespace Pieces{
             int* rightmost_coordinate_indices;
             int* downmost_coordinate_indices;
             int* orientation_coordinates;
+            int* wall_kick_offsets;
     };
 }
 

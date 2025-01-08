@@ -10,9 +10,9 @@
 // const uint64_t Z_ORIENTATIONS = 0xc60026400c604c80;
 
 int Pieces::I_ORIENTATION_COORDINATES[Piece::ORIENTATIONS * Piece::COORDINATES] {
-    0, 1, 2, 3,
-    2, 6, 10, 14,
     4, 5, 6, 7,
+    2, 6, 10, 14,
+    8, 9, 10, 11,
     1, 5, 9, 13
 };
 
@@ -215,4 +215,66 @@ int Pieces::Z_DOWNMOST_COLLISION_COORDINATE_INDICES[Piece::ORIENTATIONS * Piece:
     2, 3, -1, -1,
     0, 2, 3, -1,
     2, 3, -1, -1
+};
+
+
+
+int Pieces::I_WALL_KICK_OFFSETS[Piece::ORIENTATIONS * Piece::DIMENSIONS * Piece::OFFSETS] {
+    // rotating orientation 0->1
+     0,  0,
+     0, -2,
+     0,  1,
+     1, -2, 
+    -2,  1,
+
+    // rotating orientation 1->2
+     0,  0,
+     0, -1,
+     0,  2,
+    -2, -1, 
+     1,  2,
+
+    // rotating orientation 2->3
+     0,  0,
+     0,  2,
+     0, -1,
+    -1,  2, 
+     2, -1,
+
+    // rotating orientation 3->0
+     0,  0,
+     0,  1,
+     0, -2,
+     2,  1, 
+    -1, -2
+};
+
+int Pieces::TLJSZ_WALL_KICK_OFFSETS[Piece::ORIENTATIONS * Piece::DIMENSIONS * Piece::OFFSETS] {
+    // rotating orientation 0->1
+     0,  0,
+     0, -1,
+    -1, -1,
+     2,  0, 
+     2, -1,
+
+    // rotating orientation 1->2
+     0,  0,
+     0,  1,
+     1,  1,
+    -2,  0, 
+    -2,  1,
+
+    // rotating orientation 2->3
+     0,  0,
+     0,  1,
+    -1,  1,
+     2,  0, 
+     2,  1,
+
+    // rotating orientation 3->0
+     0,  0,
+     0, -1,
+     1, -1,
+    -2,  0, 
+    -2, -1
 };

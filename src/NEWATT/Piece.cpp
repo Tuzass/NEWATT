@@ -9,46 +9,59 @@ Piece::Piece(Type type):
 {
     switch (this->type){
         case Type::I:
-            this->orientation_coordinates = (int*)(I_ORIENTATION_COORDINATES);
-            this->leftmost_coordinate_indices = (int*)(I_LEFTMOST_COLLISION_COORDINATE_INDICES);
-            this->rightmost_coordinate_indices = (int*)(I_RIGHTMOST_COLLISION_COORDINATE_INDICES);
-            this->downmost_coordinate_indices = (int*)(I_DOWNMOST_COLLISION_COORDINATE_INDICES);
+            this->orientation_coordinates = (int*)I_ORIENTATION_COORDINATES;
+            this->leftmost_coordinate_indices = (int*)I_LEFTMOST_COLLISION_COORDINATE_INDICES;
+            this->rightmost_coordinate_indices = (int*)I_RIGHTMOST_COLLISION_COORDINATE_INDICES;
+            this->downmost_coordinate_indices = (int*)I_DOWNMOST_COLLISION_COORDINATE_INDICES;
+            this->wall_kick_offsets = (int*)I_WALL_KICK_OFFSETS;
             break;
+
         case Type::O:
-            this->orientation_coordinates = (int*)(O_ORIENTATION_COORDINATES);
-            this->leftmost_coordinate_indices = (int*)(O_LEFTMOST_COLLISION_COORDINATE_INDICES);
-            this->rightmost_coordinate_indices = (int*)(O_RIGHTMOST_COLLISION_COORDINATE_INDICES);
-            this->downmost_coordinate_indices = (int*)(O_DOWNMOST_COLLISION_COORDINATE_INDICES);
+            this->orientation_coordinates = (int*)O_ORIENTATION_COORDINATES;
+            this->leftmost_coordinate_indices = (int*)O_LEFTMOST_COLLISION_COORDINATE_INDICES;
+            this->rightmost_coordinate_indices = (int*)O_RIGHTMOST_COLLISION_COORDINATE_INDICES;
+            this->downmost_coordinate_indices = (int*)O_DOWNMOST_COLLISION_COORDINATE_INDICES;
+            this->wall_kick_offsets = nullptr;
             break;
+
         case Type::T:
-            this->orientation_coordinates = (int*)(T_ORIENTATION_COORDINATES);
-            this->leftmost_coordinate_indices = (int*)(T_LEFTMOST_COLLISION_COORDINATE_INDICES);
-            this->rightmost_coordinate_indices = (int*)(T_RIGHTMOST_COLLISION_COORDINATE_INDICES);
-            this->downmost_coordinate_indices = (int*)(T_DOWNMOST_COLLISION_COORDINATE_INDICES);
+            this->orientation_coordinates = (int*)T_ORIENTATION_COORDINATES;
+            this->leftmost_coordinate_indices = (int*)T_LEFTMOST_COLLISION_COORDINATE_INDICES;
+            this->rightmost_coordinate_indices = (int*)T_RIGHTMOST_COLLISION_COORDINATE_INDICES;
+            this->downmost_coordinate_indices = (int*)T_DOWNMOST_COLLISION_COORDINATE_INDICES;
+            this->wall_kick_offsets = (int*)TLJSZ_WALL_KICK_OFFSETS;
             break;
+
         case Type::L:
-            this->orientation_coordinates = (int*)(L_ORIENTATION_COORDINATES);
-            this->leftmost_coordinate_indices = (int*)(L_LEFTMOST_COLLISION_COORDINATE_INDICES);
-            this->rightmost_coordinate_indices = (int*)(L_RIGHTMOST_COLLISION_COORDINATE_INDICES);
-            this->downmost_coordinate_indices = (int*)(L_DOWNMOST_COLLISION_COORDINATE_INDICES);
+            this->orientation_coordinates = (int*)L_ORIENTATION_COORDINATES;
+            this->leftmost_coordinate_indices = (int*)L_LEFTMOST_COLLISION_COORDINATE_INDICES;
+            this->rightmost_coordinate_indices = (int*)L_RIGHTMOST_COLLISION_COORDINATE_INDICES;
+            this->downmost_coordinate_indices = (int*)L_DOWNMOST_COLLISION_COORDINATE_INDICES;
+            this->wall_kick_offsets = (int*)TLJSZ_WALL_KICK_OFFSETS;
             break;
+
         case Type::J:
-            this->orientation_coordinates = (int*)(J_ORIENTATION_COORDINATES);
-            this->leftmost_coordinate_indices = (int*)(J_LEFTMOST_COLLISION_COORDINATE_INDICES);
-            this->rightmost_coordinate_indices = (int*)(J_RIGHTMOST_COLLISION_COORDINATE_INDICES);
-            this->downmost_coordinate_indices = (int*)(J_DOWNMOST_COLLISION_COORDINATE_INDICES);
+            this->orientation_coordinates = (int*)J_ORIENTATION_COORDINATES;
+            this->leftmost_coordinate_indices = (int*)J_LEFTMOST_COLLISION_COORDINATE_INDICES;
+            this->rightmost_coordinate_indices = (int*)J_RIGHTMOST_COLLISION_COORDINATE_INDICES;
+            this->downmost_coordinate_indices = (int*)J_DOWNMOST_COLLISION_COORDINATE_INDICES;
+            this->wall_kick_offsets = (int*)TLJSZ_WALL_KICK_OFFSETS;
             break;
+
         case Type::S:
-            this->orientation_coordinates = (int*)(S_ORIENTATION_COORDINATES);
-            this->leftmost_coordinate_indices = (int*)(S_LEFTMOST_COLLISION_COORDINATE_INDICES);
-            this->rightmost_coordinate_indices = (int*)(S_RIGHTMOST_COLLISION_COORDINATE_INDICES);
-            this->downmost_coordinate_indices = (int*)(S_DOWNMOST_COLLISION_COORDINATE_INDICES);
+            this->orientation_coordinates = (int*)S_ORIENTATION_COORDINATES;
+            this->leftmost_coordinate_indices = (int*)S_LEFTMOST_COLLISION_COORDINATE_INDICES;
+            this->rightmost_coordinate_indices = (int*)S_RIGHTMOST_COLLISION_COORDINATE_INDICES;
+            this->downmost_coordinate_indices = (int*)S_DOWNMOST_COLLISION_COORDINATE_INDICES;
+            this->wall_kick_offsets = (int*)TLJSZ_WALL_KICK_OFFSETS;
             break;
+
         case Type::Z:
-            this->orientation_coordinates = (int*)(Z_ORIENTATION_COORDINATES);
-            this->leftmost_coordinate_indices = (int*)(Z_LEFTMOST_COLLISION_COORDINATE_INDICES);
-            this->rightmost_coordinate_indices = (int*)(Z_RIGHTMOST_COLLISION_COORDINATE_INDICES);
-            this->downmost_coordinate_indices = (int*)(Z_DOWNMOST_COLLISION_COORDINATE_INDICES);
+            this->orientation_coordinates = (int*)Z_ORIENTATION_COORDINATES;
+            this->leftmost_coordinate_indices = (int*)Z_LEFTMOST_COLLISION_COORDINATE_INDICES;
+            this->rightmost_coordinate_indices = (int*)Z_RIGHTMOST_COLLISION_COORDINATE_INDICES;
+            this->downmost_coordinate_indices = (int*)Z_DOWNMOST_COLLISION_COORDINATE_INDICES;
+            this->wall_kick_offsets = (int*)TLJSZ_WALL_KICK_OFFSETS;
             break;
     }
 
@@ -59,8 +72,20 @@ Piece::Piece(Type type):
     }
 }
 
+Piece::Type Piece::getType(){
+    return this->type;
+}
+
 int Piece::getOrientationIndex(){
     return this->orientation_index;
+}
+
+void Piece::increaseOrientationIndex(){
+    this->orientation_index = (this->orientation_index + 1) % this->ORIENTATIONS;
+}
+
+void Piece::decreaseOrientationIndex(){
+    this->orientation_index = (this->orientation_index - 1) % this->ORIENTATIONS;
 }
 
 int* Piece::getCoordinates(){
@@ -88,6 +113,10 @@ const int* Piece::getDownmostCoordinateIndices(){
 
 const int* Piece::getOrientationCoordinates(){
     return this->orientation_coordinates;
+}
+
+const int* Piece::getWallKickOffsets(){
+    return this->wall_kick_offsets;
 }
 
 void Piece::printOrientationCoordinates(){

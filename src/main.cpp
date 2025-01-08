@@ -6,16 +6,11 @@ int main(void){
     match.start();
     match.printStates();
 
-    while (match.getState() != Match::State::Finished){
-        std::cout << "\nOutline coordinates for piece " << match.getPiecesDropped() << ": " << std::endl;
-        match.printOutlineCoordinates();
+    match.rotateCW();
+    match.printStates();
 
-        while (match.getState() == Match::State::Ongoing)
-            match.lowerPiece();
-
-        match.spawnNewPiece();
-        match.printStates();
-    }
+    match.rotateCounterCW();
+    match.printStates();
 
     return 0;
 }
