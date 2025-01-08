@@ -174,8 +174,9 @@ void Match::calculateGhostCoordinates(){
             int row = coordinates[2 * index] + i;
             int column = coordinates[2 * index + 1];
 
-            if (row == this->ROWS - 1){
+            if (row == this->ROWS){
                 found_bottom_collision = true;
+                i--;
                 break;
             }
 
@@ -194,6 +195,7 @@ void Match::calculateGhostCoordinates(){
     for (int j = 0; j < this->COORDINATES; j++){
         this->ghost_coordinates[2 * j] = coordinates[2 * j] + i;
         this->ghost_coordinates[2 * j + 1] = coordinates[2 * j + 1];
+        std::cout << "(" << this->ghost_coordinates[2 * j] << "," << this->ghost_coordinates[2 * j + 1] << ")" << std::endl;
     }
 }
 
@@ -284,46 +286,63 @@ void Match::rotateCW(){
     int orientation_coordinate_row = orientation_coordinate / this->COORDINATES;
     int orientation_coordinate_column = orientation_coordinate % this->COORDINATES;
 
+    std::cout << "\nold orientation index = " << old_orientation_index << std::endl;
+
     int* coordinates = this->piece.getCoordinates();
     int coordinate_row = coordinates[0];
     int coordinate_column = coordinates[1];
 
     int bounding_box_row_offset = coordinate_row - orientation_coordinate_row;
     int bounding_box_column_offset = coordinate_column - orientation_coordinate_column;
+
+    std::cout << "\nbounding box offset = (" << bounding_box_row_offset << "," << bounding_box_column_offset << ")" << std::endl;
     
     int new_orientation_index = old_orientation_index + 1;
     if (new_orientation_index >= Piece::ORIENTATIONS) new_orientation_index -= Piece::ORIENTATIONS;
 
+    std::cout << "\nnew orientation index = " << new_orientation_index << std::endl;
+
     const int* wall_kick_offsets = this->piece.getWallKickOffsets();
     for (int i = 0; i < Piece::OFFSETS; i++){
-
+        std::cout << "\nstarting test " << i << std::endl;
         int wall_kick_row_offset = wall_kick_offsets[old_orientation_index * Piece::OFFSETS * this->DIMENSIONS + i * this->DIMENSIONS];
         int wall_kick_column_offset = wall_kick_offsets[old_orientation_index * Piece::OFFSETS * this->DIMENSIONS + i * this->DIMENSIONS + 1];
+        std::cout << "\nwall kick offset = (" << wall_kick_row_offset << "," << wall_kick_column_offset << ")" << std::endl;
 
         bool test_result{true};
         for (int j = 0; j < this->COORDINATES; j++){
-
             int coordinate = orientation_coordinates[new_orientation_index * this->COORDINATES + j];
             int row = coordinate / this->COORDINATES + bounding_box_row_offset + wall_kick_row_offset;
             int column = coordinate % this->COORDINATES + bounding_box_column_offset + wall_kick_column_offset;
 
+            std::cout << "\ncoordinate (" << row << "," << column << ")" << std::endl;
+
             if (row < 0 || row >= this->ROWS || column < 0 || column >= this->COLUMNS){
                 test_result = false;
+                std::cout << "cell outside grid" << std::endl;
                 break;
             }
 
             Cell offset_cell = this->grid[row * this->COLUMNS + column];
             if (offset_cell.getState() == Cell::State::Full){
                 test_result = false;
+                std::cout << "cell already full" << std::endl;
                 break;
             }
+
+            std::cout << "we good" << std::endl;
         }
 
         if (!test_result) continue;
 
+        std::cout << "\ntest " << i << " successful, performing rotation" << std::endl;
+
         for (int j = 0; j < this->COORDINATES; j++){
             int current_row = coordinates[2 * j];
             int current_column = coordinates[2 * j + 1];
+
+            std::cout << "\nemptying (" << current_row << "," << current_column << ")" << std::endl;
+
             this->grid[current_row * this->COLUMNS + current_column].setState(Cell::State::Empty);
             this->grid[current_row * this->COLUMNS + current_column].setColors(0, 0, 0);
         }
@@ -333,6 +352,8 @@ void Match::rotateCW(){
             int new_row = new_coordinate / this->COORDINATES + bounding_box_row_offset + wall_kick_row_offset;
             int new_column = new_coordinate % this->COORDINATES + bounding_box_column_offset + wall_kick_column_offset;
 
+            std::cout << "\nfilling (" << new_row << "," << new_column << ")" << std::endl;
+
             coordinates[2 * j] = new_row;
             coordinates[2 * j + 1] = new_column;
             this->grid[new_row * this->COLUMNS + new_column].setState(Cell::State::Piece);
@@ -341,6 +362,9 @@ void Match::rotateCW(){
 
         this->piece.increaseOrientationIndex();
         this->calculateGhostCoordinates();
+
+        std::cout << "new ghost coordinates: ";
+        this->printGhostCoordinates();
         break;
     }
 }

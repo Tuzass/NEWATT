@@ -82,7 +82,7 @@ int Piece::getOrientationIndex(){
 
 void Piece::increaseOrientationIndex(){
     this->orientation_index = this->orientation_index + 1;
-    if (this->orientation_index > ORIENTATIONS) this->orientation_index -= ORIENTATIONS;
+    if (this->orientation_index >= ORIENTATIONS) this->orientation_index -= ORIENTATIONS;
 }
 
 void Piece::decreaseOrientationIndex(){

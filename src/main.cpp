@@ -38,7 +38,6 @@ int main(void){
         else if (input == "lp")
             match.lowerPiece();
 
-        match.printGhostCoordinates();
         match.printStates();
 
         std::cout << "l = move left\nr = move right\ncw = rotate clockwise\nccw = rotate counterclockwise\nh = hard drop\nlp = lower piece" << std::endl;
