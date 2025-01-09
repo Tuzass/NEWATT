@@ -1,5 +1,33 @@
 #include "../include/NEWATT/PieceCoordinates.hpp"
 
+char Pieces::getPieceLetter(Pieces::Piece::Type type){
+    switch (type){
+        case Piece::Type::I:
+            return 'I';
+
+        case Piece::Type::O:
+            return 'O';
+
+        case Piece::Type::T:
+            return 'T';
+
+        case Piece::Type::L:
+            return 'L';
+
+        case Piece::Type::J:
+            return 'J';
+        
+        case Piece::Type::S:
+            return 'S';
+        
+        case Piece::Type::Z:
+            return 'Z';
+        
+        default:
+            return 0;
+    }
+}
+
 using namespace Pieces;
 
 Piece::Piece(): type{I} {}
@@ -65,7 +93,7 @@ Piece::Piece(Type type):
             break;
     }
 
-    for (int i = 0; i < this->COORDINATES; i++){
+    for (int i = 0; i < COORDINATES; i++){
         int coordinate = this->orientation_coordinates[i];
         this->coordinates[2 * i] = coordinate / 4;
         this->coordinates[2 * i + 1] = coordinate % 4 + 3;
@@ -95,7 +123,7 @@ int* Piece::getCoordinates(){
 }
 
 void Piece::printCoordinates(){
-    for (int i = 0; i < this->COORDINATES; i++)
+    for (int i = 0; i < COORDINATES; i++)
         std::cout << "(" << this->coordinates[2 * i] << "," << this->coordinates[2 * i + 1] << ") ";
     
     std::cout << std::endl;
@@ -122,9 +150,9 @@ const int* Piece::getWallKickOffsets(){
 }
 
 void Piece::printOrientationCoordinates(){
-    for (int i = 0; i < this->ORIENTATIONS; i++){
-        for (int j = 0; j < this->COORDINATES; j++)
-            std::cout << (int)(this->orientation_coordinates[i * this->COORDINATES + j]) << " ";
+    for (int i = 0; i < ORIENTATIONS; i++){
+        for (int j = 0; j < COORDINATES; j++)
+            std::cout << (int)(this->orientation_coordinates[i * COORDINATES + j]) << " ";
 
         std::cout << std::endl;
     }

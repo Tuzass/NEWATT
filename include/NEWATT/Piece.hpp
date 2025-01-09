@@ -25,12 +25,12 @@ namespace Pieces{
             void decreaseOrientationIndex();
             int* getCoordinates();
             void printCoordinates();
+            void printOrientationCoordinates();
             const int* getLeftmostCoordinateIndices();
             const int* getRightmostCoordinateIndices();
             const int* getDownmostCoordinateIndices();
             const int* getOrientationCoordinates();
             const int* getWallKickOffsets();
-            void printOrientationCoordinates();
 
         private:
             Type type;
@@ -42,6 +42,8 @@ namespace Pieces{
             int* orientation_coordinates;
             int* wall_kick_offsets;
     };
+
+    char getPieceLetter(Piece::Type type);
 }
 
 #endif

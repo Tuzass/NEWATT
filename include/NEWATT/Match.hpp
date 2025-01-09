@@ -13,6 +13,7 @@ class Match{
         static const int COORDINATES = 4;
         static const int DIMENSIONS = 2;
         static const int PIECES = 7;
+        static const int NEXT_PIECES = 4;
 
         enum State{
             NotStarted, Ongoing, Paused, PieceLocked, Finished
@@ -31,13 +32,15 @@ class Match{
         int getPiecesDropped();
         int* getGhostCoordinates();
         
-        void printColors();
-        void printStates();
+        void printColorGrid();
+        void printStateGrid();
         void printGhostCoordinates();
+        void printNextPieces();
+        void printHeldPiece();
     
         void start();
-        void generateRandomPieceSequence();
-        void spawnNewPiece();
+        void generateRandomPieceSequence(int sequence[PIECES]);
+        void spawnNewPiece(int piece_type = -1);
         void checkForClearRows(int rows[COORDINATES]);
         void calculateGhostCoordinates();
 
@@ -49,6 +52,7 @@ class Match{
         
         void lowerPiece();
         void lockPiece();
+        void holdPiece();
 
         void normalDrop();
         void softDrop();
@@ -68,8 +72,10 @@ class Match{
         int highest_non_empty_row;
         int last_drop_time;
         int piece_list_index;
-        int piece_list[PIECES];
+        int piece_list[2 * PIECES];
         Pieces::Piece piece;
+        int held_piece;
+        bool has_switched;
 };
 
 #endif

@@ -14,7 +14,7 @@
                 "${workspaceFolder}/src/NEWATT/Cell.cpp",
                 "${workspaceFolder}/src/glad/gl.c",
                 "-o",
-                "${workspaceFolder}/main.exe", 
+                "${workspaceFolder}/NEWATT.exe", 
                 "-I",
                 "${workspaceFolder}/include", 
                 "-L",

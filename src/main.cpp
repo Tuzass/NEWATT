@@ -38,15 +38,21 @@ int main(void){
         else if (input == "lp")
             match.lowerPiece();
 
+        else if (input == "sp")
+            match.holdPiece();
+        
+        match.printNextPieces();
+        match.printHeldPiece();
+
         if (match.getState() == Match::State::PieceLocked){
             match.spawnNewPiece();
             input = "";
             continue;
         }
 
-        match.printStates();
+        match.printStateGrid();
 
-        std::cout << "l = move left\nr = move right\ncw = rotate clockwise\nccw = rotate counterclockwise\nh = hard drop\nlp = lower piece" << std::endl;
+        std::cout << "l = move left\nr = move right\ncw = rotate clockwise\nccw = rotate counterclockwise\nh = hard drop\nlp = lower piece\nsp = switch piece" << std::endl;
         std::cout << "enter \"exit\" to end the game\n" << std::endl;
 
         std::cin >> input;
