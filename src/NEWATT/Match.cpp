@@ -194,6 +194,8 @@ void Match::spawnNewPiece(int piece_type){
 
     this->state = State::Ongoing;
     this->calculateGhostCoordinates();
+    this->lowerPiece();
+    this->lowerPiece();
 }
 
 void Match::checkForClearRows(int rows[COORDINATES]){
@@ -218,11 +220,11 @@ void Match::checkForClearRows(int rows[COORDINATES]){
                 Cell::State state = this->grid[j * COLUMNS + k].getState();
                 uint8_t* colors = this->grid[j * COLUMNS + k].getColors();
 
-                this->grid[j * COLUMNS + k].setState(Cell::State::Empty);
-                this->grid[j * COLUMNS + k].setColors(0, 0, 0);
-
                 this->grid[(j + 1) * COLUMNS + k].setState(state);
                 this->grid[(j + 1) * COLUMNS + k].setColors(colors[0], colors[1], colors[2]);
+
+                this->grid[j * COLUMNS + k].setState(Cell::State::Empty);
+                this->grid[j * COLUMNS + k].setColors(0, 0, 0);
             }
         }
 
@@ -567,10 +569,7 @@ void Match::lockPiece(){
 }
 
 void Match::holdPiece(){
-    if (this->has_switched){
-        std::cout << "can't switch again dude..." << std::endl;
-        return;
-    }
+    if (this->has_switched) return;
 
     int* coordinates = this->piece.getCoordinates();
     for (int i = 0; i < COORDINATES; i++){
@@ -609,6 +608,7 @@ void Match::hardDrop(){
         int row = coordinates[2 * i];
         int column = coordinates[2 * i + 1];
         this->grid[row * COLUMNS + column].setState(Cell::State::Empty);
+        this->grid[row * COLUMNS + column].setColors(0, 0, 0);
     }
 
     for (int i = 0; i < COORDINATES; i++){

@@ -8,6 +8,7 @@
             "args": [
                 "-g",
                 "${workspaceFolder}/src/main.cpp", 
+                "${workspaceFolder}/src/NEWATT/Game.cpp", 
                 "${workspaceFolder}/src/NEWATT/Match.cpp",
                 "${workspaceFolder}/src/NEWATT/Piece.cpp",
                 "${workspaceFolder}/src/NEWATT/PieceCoordinates.cpp",

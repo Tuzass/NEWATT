@@ -1,64 +1,37 @@
-#include "../include/NEWATT/Match.hpp"
+#include "../include/NEWATT/Game.hpp"
 #include <cstdlib>
-#include <string>
+
+static void error_callback(int error, const char* description){
+    std::cerr << "Error: " << description << std::endl;
+}
 
 int main(void){
-    Match match{};
-    match.start();
+    glfwSetErrorCallback(error_callback);
 
-    std::string input = "";
-    while (true){
-        if (match.getState() == Match::State::Finished){
-            std::cout << "you fucking suck" << std::endl;
-            break;
-        }
+    if (!glfwInit())
+        exit(EXIT_FAILURE);
 
-        else if (input == "exit"){
-            std::cout << "match exited successfully" << std::endl;
-            break;
-        }
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-        system("cls");
-
-        if (input == "l")
-            match.moveLeft();
-
-        else if (input == "r")
-            match.moveRight();
-
-        else if (input == "cw")
-            match.rotateCW();
-
-        else if (input == "ccw")
-            match.rotateCounterCW();
-
-        else if (input == "h")
-            match.hardDrop();
-        
-        else if (input == "lp")
-            match.lowerPiece();
-
-        else if (input == "sp")
-            match.holdPiece();
-        
-        match.printNextPieces();
-        match.printHeldPiece();
-        std::cout << "Lines cleared: " << match.getLinesCleared() << std::endl;
-        std::cout << "Pieces dropped: " << match.getPiecesDropped() << std::endl;
-
-        if (match.getState() == Match::State::PieceLocked){
-            match.spawnNewPiece();
-            input = "";
-            continue;
-        }
-
-        match.printStateGrid();
-
-        std::cout << "l = move left\nr = move right\ncw = rotate clockwise\nccw = rotate counterclockwise\nh = hard drop\nlp = lower piece\nsp = switch piece" << std::endl;
-        std::cout << "enter \"exit\" to end the game\n" << std::endl;
-
-        std::cin >> input;
+    GLFWwindow* window = glfwCreateWindow(Game::WIDTH, Game::HEIGHT, "WATT", NULL, NULL);
+    if (!window){
+        glfwTerminate();
+        exit(EXIT_FAILURE);
     }
+
+    glfwMakeContextCurrent(window);
+    gladLoadGL(glfwGetProcAddress);
+    glfwSwapInterval(1);
+
+    Game game {window};
+    game.init();
+    game.run();
+
+    glfwDestroyWindow(window);
+    glfwTerminate();
+    exit(EXIT_SUCCESS);
 
     return 0;
 }
