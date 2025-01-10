@@ -43,6 +43,8 @@ int main(void){
         
         match.printNextPieces();
         match.printHeldPiece();
+        std::cout << "Lines cleared: " << match.getLinesCleared() << std::endl;
+        std::cout << "Pieces dropped: " << match.getPiecesDropped() << std::endl;
 
         if (match.getState() == Match::State::PieceLocked){
             match.spawnNewPiece();

@@ -226,6 +226,7 @@ void Match::checkForClearRows(int rows[COORDINATES]){
             }
         }
 
+        this->lines_cleared++;
         this->highest_non_empty_row--;
     }
 }
@@ -554,13 +555,12 @@ void Match::lockPiece(){
         if (row < this->highest_non_empty_row) this->highest_non_empty_row = row;
     }
 
-    this->pieces_dropped++;
-
     if (highest_row < ROWS - 20){
         this->state = State::Finished;
         return;
     }
 
+    this->pieces_dropped++;
     this->checkForClearRows(rows_changed);
     this->state = State::PieceLocked;
     this->has_switched = false;
