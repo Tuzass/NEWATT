@@ -1,5 +1,7 @@
 #include "../include/NEWATT/Game.hpp"
 
+const std::string Game::state_strings[4] {"InMenu", "Paused", "InMatch", "Interim"};
+
 const char* Game::vertex_shader_text =
 "#version 450 core\n"
 "layout (location = 0) in vec3 position;\n"
@@ -52,57 +54,48 @@ void Game::key_callback(GLFWwindow* window, int key, int scancode, int action, i
     if (key == GLFW_KEY_ENTER && action == GLFW_PRESS && game->state == State::InMenu){
         game->state = State::InMatch;
         game->match.start();
-        std::cout << "match started" << std::endl;
     }
 
     else if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS && game->state == State::InMatch){
         game->state = State::Paused;
-        std::cout << "match paused" << std::endl;
     }
 
     else if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS && game->state == State::Paused){
         glfwSetWindowShouldClose(window, GLFW_TRUE);
-        std::cout << "closing window" << std::endl;
     }
 
     else if (key == GLFW_KEY_SPACE && action == GLFW_PRESS && game->state == State::Paused){
         game->state = State::InMatch;
-        std::cout << "match resumed" << std::endl;
     }
 
     else if (key == GLFW_KEY_KP_6 && action == GLFW_PRESS && game->state == State::InMatch){
         game->match.moveRight();
-        std::cout << "moved right" << std::endl;
     }
 
     else if (key == GLFW_KEY_KP_4 && action == GLFW_PRESS && game->state == State::InMatch){
         game->match.moveLeft();
-        std::cout << "moved left" << std::endl;
     }
 
     else if (key == GLFW_KEY_KP_8 && action == GLFW_PRESS && game->state == State::InMatch){
         game->match.holdPiece();
-        std::cout << "piece held" << std::endl;
     }
 
     else if (key == GLFW_KEY_KP_5 && action == GLFW_PRESS && game->state == State::InMatch){
         game->match.lowerPiece();
-        std::cout << "lowered piece" << std::endl;
     }
 
     else if (key == GLFW_KEY_SPACE && action == GLFW_PRESS && game->state == State::InMatch){
         game->match.hardDrop();
-        std::cout << "hard dropped" << std::endl;
+        std::cout << "\nMatch state: " << Match::state_strings[(int)game->match.getState()] << std::endl;
+        std::cout << "Game state: " << Game::state_strings[(int)game->getState()] << std::endl;
     }
 
     else if (key == GLFW_KEY_Q && action == GLFW_PRESS && game->state == State::InMatch){
         game->match.rotateCounterCW();
-        std::cout << "rotated ccw" << std::endl;
     }
 
     else if (key == GLFW_KEY_W && action == GLFW_PRESS && game->state == State::InMatch){
         game->match.rotateCW();
-        std::cout << "rotated cw" << std::endl;
     }
 }
 
@@ -188,7 +181,6 @@ void Game::init(){
         delete[] log;
     }
 
-    glDisable(GL_BLEND);
     glEnable(GL_DEPTH_TEST);
     glUseProgram(this->program);
 }

@@ -6,7 +6,7 @@
 class Cell{
     public:
         enum State: uint8_t{
-            Empty, Full, Piece
+            Empty, Full, Piece, Ghost
         };
 
         static const int COLOR_COMPONENTS = 3;

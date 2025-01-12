@@ -5,6 +5,7 @@
 #include "PieceData.hpp"
 #include <iostream>
 #include <ctime>
+#include <string>
 
 class Match{
     public:
@@ -18,6 +19,8 @@ class Match{
         enum State{
             NotStarted, Ongoing, Paused, PieceLocked, Finished
         };
+
+        static const std::string state_strings[5];
 
         Match();
         Match(Cell grid[ROWS * COLUMNS]);
@@ -76,6 +79,7 @@ class Match{
         Pieces::Piece piece;
         int held_piece;
         bool has_switched;
+        bool has_ghost_coordinates;
 };
 
 #endif

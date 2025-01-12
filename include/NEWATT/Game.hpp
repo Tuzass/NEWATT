@@ -14,6 +14,8 @@ class Game{
             InMenu, Paused, InMatch, Interim
         };
 
+        static const std::string state_strings[4];
+
         static const int VERTICES_PER_CELL = 4;
         static const int VERTEX_DIMENSIONS = 3;
         static const int WIDTH = 800;

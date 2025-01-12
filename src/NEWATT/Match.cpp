@@ -1,8 +1,10 @@
 #include "../include/NEWATT/Match.hpp"
 
+const std::string Match::state_strings[5] {"NotStarted", "Ongoing", "Paused", "PieceLocked", "Finished"};
+
 Match::Match():
-    state{}, grid{}, match_time{}, match_score{}, current_speed{0.25f}, lines_cleared{}, pieces_dropped{},
-    highest_non_empty_row{ROWS}, last_drop_time{}, piece_list_index{}, piece{}, held_piece{-1}, has_switched{false}
+    state{}, grid{}, match_time{}, match_score{}, current_speed{0.25f}, lines_cleared{}, pieces_dropped{}, ghost_coordinates{},
+    highest_non_empty_row{ROWS}, last_drop_time{}, piece_list_index{}, piece{}, held_piece{-1}, has_switched{false}, has_ghost_coordinates{false}
 {
     for (int i = 0; i < COORDINATES * DIMENSIONS; i++)
             this->ghost_coordinates[i] = 0;
@@ -14,9 +16,6 @@ Match::Match(Cell grid[ROWS * COLUMNS]):
 {
     for (int i = 0; i < ROWS * COLUMNS; i++)
         this->grid[i] = grid[i];
-    
-    for (int i = 0; i < COORDINATES * DIMENSIONS; i++)
-        this->ghost_coordinates[i] = 0;
 }
 
 Match::State Match::getState(){
@@ -237,7 +236,6 @@ void Match::checkForClearRows(int rows[COORDINATES]){
 void Match::calculateGhostCoordinates(){
     int* coordinates = this->piece.getCoordinates();
     const int* downmost_coordinate_indices = this->piece.getDownmostCoordinateIndices();
-    int orientation_offset = this->piece.getOrientationIndex() * Pieces::Piece::ORIENTATIONS;
 
     int i = 0;
     bool found_bottom_collision{false};
@@ -267,10 +265,31 @@ void Match::calculateGhostCoordinates(){
         if (!found_bottom_collision) i++;
     }
 
-    for (int j = 0; j < COORDINATES; j++){
-        this->ghost_coordinates[2 * j] = coordinates[2 * j] + i;
-        this->ghost_coordinates[2 * j + 1] = coordinates[2 * j + 1];
+    if (this->has_ghost_coordinates){
+        for (int j = 0; j < COORDINATES; j++){
+            int row = this->ghost_coordinates[2 * j];
+            int column = this->ghost_coordinates[2 * j + 1];
+
+            this->grid[row * COLUMNS + column].setColor(0, 0, 0);
+            this->grid[row * COLUMNS + column].setState(Cell::State::Empty);
+        }
     }
+
+    const uint8_t* color = this->piece.getColor();
+    for (int j = 0; j < COORDINATES; j++){
+        int row = coordinates[2 * j] + i;
+        int column = coordinates[2 * j + 1];
+
+        this->ghost_coordinates[2 * j] = row;
+        this->ghost_coordinates[2 * j + 1] = column;
+
+        if (this->grid[row * COLUMNS + column].getState() != Cell::State::Empty) continue;
+
+        this->grid[row * COLUMNS + column].setColor(color[0] * 0.6, color[1] * 0.6, color[2] * 0.6);
+        this->grid[row * COLUMNS + column].setState(Cell::State::Ghost);
+    }
+
+    this->has_ghost_coordinates = true;
 }
 
 void Match::moveLeft(){
@@ -572,6 +591,7 @@ void Match::lockPiece(){
     this->checkForClearRows(rows_changed);
     this->state = State::PieceLocked;
     this->has_switched = false;
+    this->has_ghost_coordinates = false;
 }
 
 void Match::holdPiece(){
