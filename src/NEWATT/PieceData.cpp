@@ -1,4 +1,4 @@
-#include "../include/NEWATT/PieceCoordinates.hpp"
+#include "../include/NEWATT/PieceData.hpp"
 
 // binary representations of orientations if needed
 // const uint64_t I_ORIENTATIONS = 0x0f00222200f04444;
@@ -37,6 +37,8 @@ int Pieces::I_DOWNMOST_COLLISION_COORDINATE_INDICES[Piece::ORIENTATIONS * Piece:
     3, -1, -1, -1
 };
 
+uint8_t Pieces::I_COLOR[Piece::COLOR_COMPONENTS] {128, 238, 221};
+
 
 
 int Pieces::O_ORIENTATION_COORDINATES[Piece::ORIENTATIONS * Piece::COORDINATES] {
@@ -66,6 +68,8 @@ int Pieces::O_DOWNMOST_COLLISION_COORDINATE_INDICES[Piece::ORIENTATIONS * Piece:
     2, 3, -1, -1,
     2, 3, -1, -1
 };
+
+uint8_t Pieces::O_COLOR[Piece::COLOR_COMPONENTS] {235, 240, 74};
 
 
 
@@ -97,6 +101,8 @@ int Pieces::T_DOWNMOST_COLLISION_COORDINATE_INDICES[Piece::ORIENTATIONS * Piece:
     1, 3, -1, -1
 };
 
+uint8_t Pieces::T_COLOR[Piece::COLOR_COMPONENTS] {230, 102, 238};
+
 
 
 int Pieces::L_ORIENTATION_COORDINATES[Piece::ORIENTATIONS * Piece::COORDINATES] {
@@ -126,6 +132,8 @@ int Pieces::L_DOWNMOST_COLLISION_COORDINATE_INDICES[Piece::ORIENTATIONS * Piece:
     1, 2, 3, -1,
     0, 3, -1, -1
 };
+
+uint8_t Pieces::L_COLOR[Piece::COLOR_COMPONENTS] {240, 160, 70};
 
 
 
@@ -157,6 +165,8 @@ int Pieces::J_DOWNMOST_COLLISION_COORDINATE_INDICES[Piece::ORIENTATIONS * Piece:
     2, 3, -1, -1
 };
 
+uint8_t Pieces::J_COLOR[Piece::COLOR_COMPONENTS] {110, 114, 240};
+
 
 
 int Pieces::S_ORIENTATION_COORDINATES[Piece::ORIENTATIONS * Piece::COORDINATES] {
@@ -187,6 +197,8 @@ int Pieces::S_DOWNMOST_COLLISION_COORDINATE_INDICES[Piece::ORIENTATIONS * Piece:
     1, 3, -1, -1
 };
 
+uint8_t Pieces::S_COLOR[Piece::COLOR_COMPONENTS] {85, 184, 77};
+
 
 
 int Pieces::Z_ORIENTATION_COORDINATES[Piece::ORIENTATIONS * Piece::COORDINATES] {
@@ -216,6 +228,8 @@ int Pieces::Z_DOWNMOST_COLLISION_COORDINATE_INDICES[Piece::ORIENTATIONS * Piece:
     0, 2, 3, -1,
     2, 3, -1, -1
 };
+
+uint8_t Pieces::Z_COLOR[Piece::COLOR_COMPONENTS] {229, 88, 88};
 
 
 

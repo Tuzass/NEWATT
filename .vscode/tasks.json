@@ -11,7 +11,7 @@
                 "${workspaceFolder}/src/NEWATT/Game.cpp", 
                 "${workspaceFolder}/src/NEWATT/Match.cpp",
                 "${workspaceFolder}/src/NEWATT/Piece.cpp",
-                "${workspaceFolder}/src/NEWATT/PieceCoordinates.cpp",
+                "${workspaceFolder}/src/NEWATT/PieceData.cpp",
                 "${workspaceFolder}/src/NEWATT/Cell.cpp",
                 "${workspaceFolder}/src/glad/gl.c",
                 "-o",

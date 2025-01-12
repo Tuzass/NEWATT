@@ -2,7 +2,7 @@
 #define MATCH_HPP
 
 #include "Cell.hpp"
-#include "PieceCoordinates.hpp"
+#include "PieceData.hpp"
 #include <iostream>
 #include <ctime>
 

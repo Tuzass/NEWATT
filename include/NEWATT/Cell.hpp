@@ -13,13 +13,13 @@ class Cell{
         
         Cell();
 
-        uint8_t* getColors();
+        uint8_t* getColor();
         State getState();
-        void setColors(uint8_t r, uint8_t g, uint8_t b);
+        void setColor(uint8_t r, uint8_t g, uint8_t b);
         void setState(State state);
     
     private:
-        uint8_t colors[COLOR_COMPONENTS];
+        uint8_t color[COLOR_COMPONENTS];
         State state;
 };
 

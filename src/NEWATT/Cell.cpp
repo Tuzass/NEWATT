@@ -1,19 +1,19 @@
 #include "../include/NEWATT/Cell.hpp"
 
-Cell::Cell(): colors{}, state{Empty} {}
+Cell::Cell(): color{}, state{Empty} {}
 
-uint8_t* Cell::getColors(){
-    return (uint8_t*)(this->colors);
+uint8_t* Cell::getColor(){
+    return (uint8_t*)(this->color);
 }
 
 Cell::State Cell::getState(){
     return this->state;
 }
 
-void Cell::setColors(uint8_t r, uint8_t g, uint8_t b){
-    this->colors[0] = r;
-    this->colors[1] = g;
-    this->colors[2] = b;
+void Cell::setColor(uint8_t r, uint8_t g, uint8_t b){
+    this->color[0] = r;
+    this->color[1] = g;
+    this->color[2] = b;
 }
 
 void Cell::setState(State state){

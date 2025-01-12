@@ -73,8 +73,8 @@ void Match::printColorGrid(){
 
     for (int i = 0; i < ROWS; i++){
         for (int j = 0; j < COLUMNS; j++){
-            uint8_t* cell_colors = this->grid[i * COLUMNS + j].getColors();
-            std::cout << "(" << (int)cell_colors[0] << "," << (int)cell_colors[1] << "," << (int)cell_colors[2] << ")";
+            uint8_t* cell_color = this->grid[i * COLUMNS + j].getColor();
+            std::cout << "(" << (int)cell_color[0] << "," << (int)cell_color[1] << "," << (int)cell_color[2] << ")";
 
             if (j < COLUMNS - 1)
                 std::cout << " | ";
@@ -184,11 +184,12 @@ void Match::spawnNewPiece(int piece_type){
         this->piece_list_index = 0;
     }
 
+    const uint8_t* color = this->piece.getColor();
     for (int i = 0; i < COORDINATES; i++){
         int row = coordinates[2 * i];
         int column = coordinates[2 * i + 1];
 
-        this->grid[row * COLUMNS + column].setColors(255, 255, 255);
+        this->grid[row * COLUMNS + column].setColor(color[0], color[1], color[2]);
         this->grid[row * COLUMNS + column].setState(Cell::State::Piece);
     }
 
@@ -218,13 +219,13 @@ void Match::checkForClearRows(int rows[COORDINATES]){
         for (int j = row - 1; j >= this->highest_non_empty_row; j--){
             for (int k = 0; k < COLUMNS; k++){
                 Cell::State state = this->grid[j * COLUMNS + k].getState();
-                uint8_t* colors = this->grid[j * COLUMNS + k].getColors();
+                uint8_t* color = this->grid[j * COLUMNS + k].getColor();
 
                 this->grid[(j + 1) * COLUMNS + k].setState(state);
-                this->grid[(j + 1) * COLUMNS + k].setColors(colors[0], colors[1], colors[2]);
+                this->grid[(j + 1) * COLUMNS + k].setColor(color[0], color[1], color[2]);
 
                 this->grid[j * COLUMNS + k].setState(Cell::State::Empty);
-                this->grid[j * COLUMNS + k].setColors(0, 0, 0);
+                this->grid[j * COLUMNS + k].setColor(0, 0, 0);
             }
         }
 
@@ -296,14 +297,15 @@ void Match::moveLeft(){
         int row = coordinates[2 * i];
         int column = coordinates[2 * i + 1];
         coordinates[2 * i + 1]--;
-        this->grid[row * COLUMNS + column].setColors(0, 0, 0);
+        this->grid[row * COLUMNS + column].setColor(0, 0, 0);
         this->grid[row * COLUMNS + column].setState(Cell::State::Empty);
     }
 
+    const uint8_t* color = this->piece.getColor();
     for (int i = 0; i < COORDINATES; i++){
         int row = coordinates[2 * i];
         int column = coordinates[2 * i + 1];
-        this->grid[row * COLUMNS + column].setColors(255, 255, 255);
+        this->grid[row * COLUMNS + column].setColor(color[0], color[1], color[2]);
         this->grid[row * COLUMNS + column].setState(Cell::State::Piece);
     }
 
@@ -334,14 +336,15 @@ void Match::moveRight(){
         int row = coordinates[2 * i];
         int column = coordinates[2 * i + 1];
         coordinates[2 * i + 1]++;
-        this->grid[row * COLUMNS + column].setColors(0, 0, 0);
+        this->grid[row * COLUMNS + column].setColor(0, 0, 0);
         this->grid[row * COLUMNS + column].setState(Cell::State::Empty);
     }
 
+    const uint8_t* color = this->piece.getColor();
     for (int i = 0; i < COORDINATES; i++){
         int row = coordinates[2 * i];
         int column = coordinates[2 * i + 1];
-        this->grid[row * COLUMNS + column].setColors(255, 255, 255);
+        this->grid[row * COLUMNS + column].setColor(color[0], color[1], color[2]);
         this->grid[row * COLUMNS + column].setState(Cell::State::Piece);
     }
 
@@ -399,9 +402,10 @@ void Match::rotateCW(){
             int current_column = coordinates[2 * j + 1];
 
             this->grid[current_row * COLUMNS + current_column].setState(Cell::State::Empty);
-            this->grid[current_row * COLUMNS + current_column].setColors(0, 0, 0);
+            this->grid[current_row * COLUMNS + current_column].setColor(0, 0, 0);
         }
 
+        const uint8_t* color = this->piece.getColor();
         for (int j = 0; j < COORDINATES; j++){
             int new_coordinate = orientation_coordinates[new_orientation_index * COORDINATES + j];
             int new_row = new_coordinate / COORDINATES + bounding_box_row_offset + wall_kick_row_offset;
@@ -410,7 +414,7 @@ void Match::rotateCW(){
             coordinates[2 * j] = new_row;
             coordinates[2 * j + 1] = new_column;
             this->grid[new_row * COLUMNS + new_column].setState(Cell::State::Piece);
-            this->grid[new_row * COLUMNS + new_column].setColors(255, 255, 255);
+            this->grid[new_row * COLUMNS + new_column].setColor(color[0], color[1], color[2]);
         }
 
         this->piece.increaseOrientationIndex();
@@ -470,9 +474,10 @@ void Match::rotateCounterCW(){
             int current_column = coordinates[2 * j + 1];
 
             this->grid[current_row * COLUMNS + current_column].setState(Cell::State::Empty);
-            this->grid[current_row * COLUMNS + current_column].setColors(0, 0, 0);
+            this->grid[current_row * COLUMNS + current_column].setColor(0, 0, 0);
         }
 
+        const uint8_t* color = this->piece.getColor();
         for (int j = 0; j < COORDINATES; j++){
             int new_coordinate = orientation_coordinates[new_orientation_index * COORDINATES + j];
             int new_row = new_coordinate / COORDINATES + bounding_box_row_offset + wall_kick_row_offset;
@@ -481,7 +486,7 @@ void Match::rotateCounterCW(){
             coordinates[2 * j] = new_row;
             coordinates[2 * j + 1] = new_column;
             this->grid[new_row * COLUMNS + new_column].setState(Cell::State::Piece);
-            this->grid[new_row * COLUMNS + new_column].setColors(255, 255, 255);
+            this->grid[new_row * COLUMNS + new_column].setColor(color[0], color[1], color[2]);
         }
 
         this->piece.decreaseOrientationIndex();
@@ -518,14 +523,15 @@ void Match::lowerPiece(){
         int row = coordinates[2 * i];
         int column = coordinates[2 * i + 1];
         coordinates[2 * i]++;
-        this->grid[row * COLUMNS + column].setColors(0, 0, 0);
+        this->grid[row * COLUMNS + column].setColor(0, 0, 0);
         this->grid[row * COLUMNS + column].setState(Cell::State::Empty);
     }
 
+    const uint8_t* color = this->piece.getColor();
     for (int i = 0; i < COORDINATES; i++){
         int row = coordinates[2 * i];
         int column = coordinates[2 * i + 1];
-        this->grid[row * COLUMNS + column].setColors(255, 255, 255);
+        this->grid[row * COLUMNS + column].setColor(color[0], color[1], color[2]);
         this->grid[row * COLUMNS + column].setState(Cell::State::Piece);
     }
 }
@@ -576,7 +582,7 @@ void Match::holdPiece(){
         int row = coordinates[2 * i];
         int column = coordinates[2 * i + 1];
         this->grid[row * COLUMNS + column].setState(Cell::State::Empty);
-        this->grid[row * COLUMNS + column].setColors(0, 0, 0);
+        this->grid[row * COLUMNS + column].setColor(0, 0, 0);
     }
 
     if (this->held_piece == -1){
@@ -608,15 +614,16 @@ void Match::hardDrop(){
         int row = coordinates[2 * i];
         int column = coordinates[2 * i + 1];
         this->grid[row * COLUMNS + column].setState(Cell::State::Empty);
-        this->grid[row * COLUMNS + column].setColors(0, 0, 0);
+        this->grid[row * COLUMNS + column].setColor(0, 0, 0);
     }
 
+    const uint8_t* color = this->piece.getColor();
     for (int i = 0; i < COORDINATES; i++){
         int row = this->ghost_coordinates[2 * i];
         int column = this->ghost_coordinates[2 * i + 1];
         coordinates[2 * i] = row;
         coordinates[2 * i + 1] = column;
-        this->grid[row * COLUMNS + column].setColors(255, 255, 255);
+        this->grid[row * COLUMNS + column].setColor(color[0], color[1], color[2]);
     }
 
     this->lockPiece();

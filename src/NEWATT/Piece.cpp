@@ -1,4 +1,4 @@
-#include "../include/NEWATT/PieceCoordinates.hpp"
+#include "../include/NEWATT/PieceData.hpp"
 
 char Pieces::getPieceLetter(Pieces::Piece::Type type){
     switch (type){
@@ -42,6 +42,7 @@ Piece::Piece(Type type):
             this->rightmost_coordinate_indices = (int*)I_RIGHTMOST_COLLISION_COORDINATE_INDICES;
             this->downmost_coordinate_indices = (int*)I_DOWNMOST_COLLISION_COORDINATE_INDICES;
             this->wall_kick_offsets = (int*)I_WALL_KICK_OFFSETS;
+            this->color = (uint8_t*)I_COLOR;
             break;
 
         case Type::O:
@@ -50,6 +51,7 @@ Piece::Piece(Type type):
             this->rightmost_coordinate_indices = (int*)O_RIGHTMOST_COLLISION_COORDINATE_INDICES;
             this->downmost_coordinate_indices = (int*)O_DOWNMOST_COLLISION_COORDINATE_INDICES;
             this->wall_kick_offsets = nullptr;
+            this->color = (uint8_t*)O_COLOR;
             break;
 
         case Type::T:
@@ -58,6 +60,7 @@ Piece::Piece(Type type):
             this->rightmost_coordinate_indices = (int*)T_RIGHTMOST_COLLISION_COORDINATE_INDICES;
             this->downmost_coordinate_indices = (int*)T_DOWNMOST_COLLISION_COORDINATE_INDICES;
             this->wall_kick_offsets = (int*)TLJSZ_WALL_KICK_OFFSETS;
+            this->color = (uint8_t*)T_COLOR;
             break;
 
         case Type::L:
@@ -66,6 +69,7 @@ Piece::Piece(Type type):
             this->rightmost_coordinate_indices = (int*)L_RIGHTMOST_COLLISION_COORDINATE_INDICES;
             this->downmost_coordinate_indices = (int*)L_DOWNMOST_COLLISION_COORDINATE_INDICES;
             this->wall_kick_offsets = (int*)TLJSZ_WALL_KICK_OFFSETS;
+            this->color = (uint8_t*)L_COLOR;
             break;
 
         case Type::J:
@@ -74,6 +78,7 @@ Piece::Piece(Type type):
             this->rightmost_coordinate_indices = (int*)J_RIGHTMOST_COLLISION_COORDINATE_INDICES;
             this->downmost_coordinate_indices = (int*)J_DOWNMOST_COLLISION_COORDINATE_INDICES;
             this->wall_kick_offsets = (int*)TLJSZ_WALL_KICK_OFFSETS;
+            this->color = (uint8_t*)J_COLOR;
             break;
 
         case Type::S:
@@ -82,6 +87,7 @@ Piece::Piece(Type type):
             this->rightmost_coordinate_indices = (int*)S_RIGHTMOST_COLLISION_COORDINATE_INDICES;
             this->downmost_coordinate_indices = (int*)S_DOWNMOST_COLLISION_COORDINATE_INDICES;
             this->wall_kick_offsets = (int*)TLJSZ_WALL_KICK_OFFSETS;
+            this->color = (uint8_t*)S_COLOR;
             break;
 
         case Type::Z:
@@ -90,6 +96,7 @@ Piece::Piece(Type type):
             this->rightmost_coordinate_indices = (int*)Z_RIGHTMOST_COLLISION_COORDINATE_INDICES;
             this->downmost_coordinate_indices = (int*)Z_DOWNMOST_COLLISION_COORDINATE_INDICES;
             this->wall_kick_offsets = (int*)TLJSZ_WALL_KICK_OFFSETS;
+            this->color = (uint8_t*)Z_COLOR;
             break;
     }
 
@@ -127,6 +134,10 @@ void Piece::printCoordinates(){
         std::cout << "(" << this->coordinates[2 * i] << "," << this->coordinates[2 * i + 1] << ") ";
     
     std::cout << std::endl;
+}
+
+const uint8_t* Piece::getColor(){
+    return this->color;
 }
 
 const int* Piece::getLeftmostCoordinateIndices(){
