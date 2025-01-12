@@ -290,8 +290,8 @@ void Game::render(){
 void Game::calculateCellPositions(){
     float divider_width_ratio = 2.0 / this->width;
     float divider_height_ratio = 2.0 / this->height;
-    float cell_size_pixels = this->height * 0.035;
-    float cell_height_ratio = 0.07;
+    float cell_size_pixels = this->height * 0.04;
+    float cell_height_ratio = 0.08;
     float cell_width_ratio = 2 * cell_size_pixels / this->width;
     
     this->cell_positions[0] = -5 * cell_width_ratio - 4.5 * divider_width_ratio;
@@ -313,9 +313,9 @@ void Game::calculateCellPositions(){
 void Game::calculateGridPositions(){
     float divider_width_ratio = 2.0 / this->width;
     float divider_height_ratio = 2.0 / this->height;
-    float cell_size_pixels = this->height * 0.035;
+    float cell_size_pixels = this->height * 0.04;
     float cell_width_ratio = 2 * cell_size_pixels / this->width;
-    float cell_height_ratio = 0.07;
+    float cell_height_ratio = 0.08;
     float aspect_ratio = width / height;
     float width_offset_from_center = 5 * cell_width_ratio + 8 * divider_width_ratio;
     float height_offset_from_center = 10 * cell_height_ratio + 13.5 * divider_height_ratio;
